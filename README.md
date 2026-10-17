@@ -43,7 +43,7 @@ Mini/
 ├── Mini-LLM/        (source repository: github.com/GautierPicon/Mini-LLM)
 ├── Mini-Eval/       (source repository: github.com/GautierPicon/Mini-Eval)
 ├── Mini-CLI/        (source repository: github.com/GautierPicon/Mini-CLI)
-└── documentation/   (this repository)
+└── Documentation/   (this repository)
 ```
 
 ## Start here
