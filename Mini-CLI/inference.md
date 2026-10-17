@@ -27,7 +27,7 @@ history truncation rule for the 512-token context; see
 
 Once the model directory is present, `mini chat` / `mini run` work offline (no
 network). The first download obviously needs internet — see
-[Models storage](models.md#pull).
+[Models storage](models.md#models-pull).
 
 ## Limitations
 
