@@ -54,12 +54,9 @@ and shared by `sft` and `chat`:
 User: <question>\nAssistant:
 ```
 
-Multi-turn conversations repeat the pattern, oldest first, before the final open
-`Assistant:`:
-
-```
-User: q1\nAssistant: a1\nUser: q2\nAssistant:
-```
+Multi-turn history is never sent: these small models anchor on their own previous
+answers and degrade when they see them, so `chat` (Mini-LLM and Mini-CLI alike)
+answers each question on its own and keeps a display transcript only.
 
 The format is exactly the training format. Changing it changes the behaviour of every
 model already trained with it, so it is treated as fixed. Mini-CLI reuses the same

@@ -19,8 +19,9 @@ weights blindly. The interface it relies on is the one described in
 [Mini-LLM architecture](../Mini-LLM/architecture.md#sizes). HF directories are the
 ones produced by [Mini-LLM export](../Mini-LLM/export-hf.md).
 
-The conversation format is the training format, handled on the Python side with the
-history truncation rule for the 512-token context; see
+The conversation format is the training format, handled on the Python side; each
+question is sent as a single turn and truncated to the last 511 tokens of the
+512-token context. See
 [Mini-LLM architecture](../Mini-LLM/architecture.md#conversation-format).
 
 ## Offline
@@ -33,8 +34,8 @@ network). The first download obviously needs internet — see
 
 - Real generation needs Python + torch (~300 MB for 70M fp32). `go build` alone does
   not bundle them.
-- Small 34M/70M models hallucinate; 512-token context; single-turn SFT, so long
-  multi-turn drifts.
+- Small 34M/70M models hallucinate; 512-token context; no conversation memory (these
+  models anchor on earlier turns and degrade).
 - `pull` needs a trusted registry; none is hardcoded.
 - CPU is fine; CUDA used automatically by the engine when available.
 
@@ -61,7 +62,7 @@ echo '{"cmd":"load","model_dir":"models/16k"}...' | uv run python ../Mini-CLI/py
 ```
 cmd/mini/main.go
 internal/cli/      Cobra commands (testable)
-internal/chat/     Conversation + history (uses Generator)
+internal/chat/     Conversation + display transcript (uses Generator)
 internal/inference/ Generator interface, Mock, Local (stdio sidecar)
 internal/model/    Registry, manifest verify, pull
 internal/config/   OS paths, JSON config, env overrides

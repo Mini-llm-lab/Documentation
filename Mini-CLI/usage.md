@@ -7,6 +7,7 @@
 
 # real local model (needs MINI_PYTHON + MINI_ENGINE_PATH)
 ./mini run --model ../Mini-LLM/models/16k "Hello"
+./mini run --model ../Mini-LLM/models/32k "Hello" --max-tokens 64   # 150M assistant
 ./mini run --model ../Mini-LLM/exports/mini-llm-assistant-34M-hf "Hello" --max-tokens 64 --temperature 0.5
 
 # models
@@ -16,13 +17,15 @@
 ./mini models pull mini-llm-70m --registry https://example.com/models
 ```
 
-Chat keys: `Enter` send, `/reset` clear history, `/quit` or `Ctrl+C` exit. History is
-in-memory only, never written to disk.
+Chat keys: `Enter` send, `/reset` clear the transcript, `/quit` or `Ctrl+C` exit. The
+transcript is in-memory only, never written to disk, and is never sent back to the
+model: each question is answered on its own.
 
-Conversation format is exactly the training format (`User: ...\nAssistant: ...\n`, see
+The format is exactly the training format (`User: ...\nAssistant:`, see
 `../Mini-LLM/src/mini_llm/prompt.py` and
-[Mini-LLM architecture](../Mini-LLM/architecture.md#conversation-format)). The Python
-engine truncates oldest turns when the 512-token context is full.
+[Mini-LLM architecture](../Mini-LLM/architecture.md#conversation-format)). Each message
+is sent as a single turn; long questions are truncated to the last 511 tokens of the
+512-token context.
 
 ## Configuration file
 
