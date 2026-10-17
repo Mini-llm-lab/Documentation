@@ -6,7 +6,7 @@ Evaluation of [Mini-LLM](../Mini-LLM/README.md) models against reference models
 repository is separate from the training repository on purpose: it only asks the
 models for probabilities, and `lm-eval` computes the scores.
 
-Source repository: [github.com/GautierPicon/Mini-Eval](https://github.com/GautierPicon/Mini-Eval).
+Source repository: [github.com/Mini-llm-lab/Mini-Eval](https://github.com/Mini-llm-lab/Mini-Eval).
 
 ## Pages
 

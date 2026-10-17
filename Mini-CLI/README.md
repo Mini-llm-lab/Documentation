@@ -3,7 +3,7 @@
 Go CLI (`mini`) to download, manage and chat with Mini locally. No account, no API
 key, no remote backend for inference.
 
-Source repository: [github.com/GautierPicon/Mini-CLI](https://github.com/GautierPicon/Mini-CLI).
+Source repository: [github.com/Mini-llm-lab/Mini-CLI](https://github.com/Mini-llm-lab/Mini-CLI).
 
 - `mini chat` — interactive conversation (Bubble Tea). Works offline once the model is
   installed.

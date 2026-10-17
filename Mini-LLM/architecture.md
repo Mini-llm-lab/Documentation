@@ -3,7 +3,7 @@
 A Llama-style decoder: RMSNorm, RoPE (rotary position embeddings), causal attention,
 SwiGLU feed-forward, and an embedding matrix shared with the output head. Everything
 lives in `Cfg` (`PRESETS` in
-[`config.py`](https://github.com/GautierPicon/Mini-LLM/blob/main/src/mini_llm/config.py)).
+[`config.py`](https://github.com/Mini-llm-lab/Mini-LLM/blob/main/src/mini_llm/config.py)).
 
 ## Sizes
 
@@ -47,7 +47,7 @@ mixes. See [Training](training.md#training-on-more-data).
 ## Conversation format
 
 The prompt format is defined once, in
-[`prompt.py`](https://github.com/GautierPicon/Mini-LLM/blob/main/src/mini_llm/prompt.py),
+[`prompt.py`](https://github.com/Mini-llm-lab/Mini-LLM/blob/main/src/mini_llm/prompt.py),
 and shared by `sft` and `chat`:
 
 ```

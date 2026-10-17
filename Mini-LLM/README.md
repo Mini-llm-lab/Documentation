@@ -6,7 +6,7 @@ covers the whole chain: tokenizer, data, architecture, pretraining, supervised
 fine-tuning into an assistant, chat, and export.
 
 Training runs on NVIDIA GPUs (CUDA). Source repository:
-[github.com/GautierPicon/Mini-LLM](https://github.com/GautierPicon/Mini-LLM).
+[github.com/Mini-llm-lab/Mini-LLM](https://github.com/Mini-llm-lab/Mini-LLM).
 
 > With 34M parameters and ~100M training tokens, the assistant writes coherent
 > sentences in the right format, but it often gets facts wrong. The 70M model trained
@@ -30,7 +30,7 @@ Training runs on NVIDIA GPUs (CUDA). Source repository:
 Requires [uv](https://docs.astral.sh/uv/) and Python 3.11+.
 
 ```
-git clone https://github.com/GautierPicon/Mini-LLM
+git clone https://github.com/Mini-llm-lab/Mini-LLM
 cd Mini-LLM
 uv sync
 
