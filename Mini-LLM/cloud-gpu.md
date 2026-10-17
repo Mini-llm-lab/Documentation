@@ -30,9 +30,9 @@ guards are in place before `prep` is started.
   decay).
 - `smoke` is a 100-step check whose reported `tok/s` is the number to watch when
   choosing a GPU for the full run.
-- `pack` archives the deliverable files: `models/tok.json`, the final base +
-  assistant checkpoints and `data/meta.json`. Milestones and `.state.pt` files are
-  excluded.
+- `pack` archives the deliverable files: the lineage `tok.json` (e.g.
+  `models/32k/tok.json` for 150M), the final base + assistant checkpoints and
+  `data/meta.json`. Milestones and `.state.pt` files are excluded.
 
 ## See also
 

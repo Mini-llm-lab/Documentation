@@ -42,7 +42,7 @@ uses two parameter groups with different weight decay.
 ## Training on more data
 
 A finished base model can be trained further on fresh data instead of starting over.
-`prep` keeps the existing `tok.json` and rewrites `data/` with a new random sample of
+`prep` keeps the lineage `tok.json` and rewrites `data/` with a new random sample of
 the sources, then `--init` loads the weights of a finished model and runs more steps
 on it:
 
@@ -73,19 +73,19 @@ Preset `150M` (`Cfg(dim=768, layers=18, heads=12, ffn=2048, vocab=32768)`,
 152,596,224 parameters, embeddings shared): the 34M/70M presets are unchanged and
 their checkpoints still load with the 16k tokenizer.
 
-- **Tokenizer (32k).** `models/tok.json` at the repo root is the 32k BPE, trained by
-  `prep` (`--vocab 32768`, 300k documents, same normalizer/pre-tokenizer/`<eos>` as
-  16k). The old 16k lineage lives in `models/16k/` (`tok.json` + 34M/70M
-  checkpoints); every checkpoint reads the `tok.json` next to it, so old models keep
+- **Tokenizer (32k).** `models/32k/tok.json` is the 32k BPE, trained by `prep`
+  (`--vocab 32768`, 300k documents, same normalizer/pre-tokenizer/`<eos>` as 16k).
+  Each lineage lives in its own folder (`models/16k/` for 34M/70M, `models/32k/` for
+  150M), and every checkpoint reads the `tok.json` next to it, so old models keep
   working.
 - **Data budget.** 34,332 steps × 131,072 tokens/step ≈ 4.5B tokens (~29
   tokens/param, ≤1 pass over `train.bin`). `prep` writes `data/meta.json` (`vocab`,
   tokenizer hash, train/val token counts); keep it next to the `.bin` files.
   `pretrain` aborts if the vocab or tokenizer hash does not match.
 - **Run.** Everything goes through `cloud/run.sh` — see [Cloud GPU](cloud-gpu.md).
-  `sft` does 2 epochs (the 70M overfit at epoch 3). `pack` archives `models/tok.json`,
-  the final 150M base + assistant and `data/meta.json` (milestones excluded,
-  `.state.pt` excluded).
+  `sft` does 2 epochs (the 70M overfit at epoch 3). `pack` archives
+  `models/32k/tok.json`, the final 150M base + assistant and `data/meta.json`
+  (milestones excluded, `.state.pt` excluded).
 - **Comparing across tokenizers.** Val losses of the 16k and 32k lineages are **not
   comparable** (predicting among 32k tokens is a different task). Compare with bits
   per byte instead — see the `wikitext` column in [Mini-Eval](../Mini-Eval/protocol.md).
