@@ -67,7 +67,8 @@ lineage warning in [Mini-LLM training](../Mini-LLM/training.md#training-a-150m-m
 2. Run `mini-eval check MODEL` on every native model: batch size must not change
    scores, the device must agree with cpu, and an untrained model must stay near
    chance.
-3. Run reported numbers with `--require-clean`, from a committed working tree.
+3. Run reported numbers with `--require-clean`, from a committed working tree (the
+   `results/` and `reports/` outputs written by the runs themselves do not count).
 
 ## Known gaps
 

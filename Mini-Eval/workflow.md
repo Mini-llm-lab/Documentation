@@ -22,7 +22,7 @@ Useful options for `run`:
 | `--device`         | `cpu` \| `mps` \| `cuda`                                                 |
 | `--limit N`        | Truncates the number of examples (smoke tests only)                      |
 | `--allow-unpinned` | Allows models without a fingerprint (test runs only)                     |
-| `--require-clean`  | Refuses to run unless the working tree is committed                      |
+| `--require-clean`  | Refuses to run unless the code tree is committed (`results/`/`reports/` outputs excluded) |
 
 Typical sequence:
 
