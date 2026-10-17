@@ -65,7 +65,7 @@ Constraints:
   and after are not directly comparable. This is why the 34M-12000steps val loss
   (3.618) is in its own lineage in the [checkpoints table](architecture.md#trained-checkpoints).
   Compare such runs with bits per byte instead — see
-  [Mini-Eval](../Mini-Eval/protocol.md#suite-small_lm).
+  [Mini-Eval](../Mini-Eval/protocol.md#suite-smalllm).
 
 ## Training a 150M model
 

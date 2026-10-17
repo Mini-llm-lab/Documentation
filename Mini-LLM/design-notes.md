@@ -6,7 +6,8 @@ Things to keep in mind when changing the code:
   below 65,536. Changing `vocab` invalidates `tok.json` and the data: delete them and
   run `prep` again. See [Data](data.md#tokenized-files).
 - The prompt format is defined once, in
-  [`prompt.py`](../Mini-LLM/src/mini_llm/prompt.py). Changing it changes the behaviour
+  [`prompt.py`](https://github.com/GautierPicon/Mini-LLM/blob/main/src/mini_llm/prompt.py).
+  Changing it changes the behaviour
   of every model already trained with it. See
   [Architecture](architecture.md#conversation-format).
 - Checkpoints store the configuration as a plain dictionary. Adding a field with a

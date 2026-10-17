@@ -40,9 +40,9 @@ The repositories are siblings on disk:
 
 ```
 Mini/
-├── Mini-LLM/        (source repository: github.com/GautierPicon/mini-llm)
-├── Mini-Eval/       (source repository: github.com/GautierPicon/mini-eval)
-├── Mini-CLI/        (source repository: github.com/GautierPicon/mini-cli)
+├── Mini-LLM/        (source repository: github.com/GautierPicon/Mini-LLM)
+├── Mini-Eval/       (source repository: github.com/GautierPicon/Mini-Eval)
+├── Mini-CLI/        (source repository: github.com/GautierPicon/Mini-CLI)
 └── documentation/   (this repository)
 ```
 

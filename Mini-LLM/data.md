@@ -25,7 +25,8 @@ Mostly written by humans:
   (generated with an OpenAI model). It adds short, simple answers, but it is capped so
   that it never exceeds 25% of the mix (`AI_MAX_SHARE` in `sft.py`); human data always
   dominates.
-- [`identity.py`](../Mini-LLM/src/mini_llm/identity.py): examples written for this
+- [`identity.py`](https://github.com/GautierPicon/Mini-LLM/blob/main/src/mini_llm/identity.py):
+  examples written for this
   project (who the assistant is, greetings, thanks, how it handles "test", its
   limits) repeated three times, plus 200 generated arithmetic examples (sums,
   differences and times tables with correct answers). They are only added to the
@@ -42,7 +43,9 @@ Assistant: <answer>
 ```
 
 The SFT loss is computed on the answer only, not on the question. The format is
-defined in [`prompt.py`](../Mini-LLM/src/mini_llm/prompt.py) and is treated as fixed —
+defined in
+[`prompt.py`](https://github.com/GautierPicon/Mini-LLM/blob/main/src/mini_llm/prompt.py)
+and is treated as fixed —
 see [Architecture](architecture.md#conversation-format).
 
 ## Tokenized files

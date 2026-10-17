@@ -82,5 +82,5 @@ lineage warning in [Mini-LLM training](../Mini-LLM/training.md#training-a-150m-m
 ## Maintaining this page
 
 The master copy of this protocol lives in the source repository
-(`mini-eval/PROTOCOL.md`) so that a checkout of the evaluation repository alone is
+(`Mini-Eval/PROTOCOL.md`) so that a checkout of the evaluation repository alone is
 self-contained. This page must be updated whenever that file changes.

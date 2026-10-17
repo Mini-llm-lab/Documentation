@@ -3,7 +3,7 @@
 Go CLI (`mini`) to download, manage and chat with Mini locally. No account, no API
 key, no remote backend for inference.
 
-Source repository: [github.com/GautierPicon/mini-cli](https://github.com/GautierPicon/mini-cli).
+Source repository: [github.com/GautierPicon/Mini-CLI](https://github.com/GautierPicon/Mini-CLI).
 
 - `mini chat` — interactive conversation (Bubble Tea). Works offline once the model is
   installed.
@@ -29,13 +29,13 @@ and never converts weights blindly — see [Inference](inference.md).
 Prerequisites:
 
 - Go >= 1.22 (tested with 1.27.1).
-- Python 3.11+ with the `mini-llm` venv for real inference:
+- Python 3.11+ with the `Mini-LLM` venv for real inference:
   ```
   cd ../Mini-LLM
   uv sync
   ```
   Needs `torch`, `tokenizers`, `transformers`, `safetensors` (already in
-  `mini-llm/pyproject.toml`).
+  `Mini-LLM/pyproject.toml`).
 - Model files: either native `models/<dir>/` (`*.pt` + `tok.json`), or an HF export
   (`config.json` + `model.safetensors` + `tokenizer.json`) — both produced by
   [Mini-LLM](../Mini-LLM/README.md).

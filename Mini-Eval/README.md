@@ -6,7 +6,7 @@ Evaluation of [Mini-LLM](../Mini-LLM/README.md) models against reference models
 repository is separate from the training repository on purpose: it only asks the
 models for probabilities, and `lm-eval` computes the scores.
 
-Source repository: [github.com/GautierPicon/mini-eval](https://github.com/GautierPicon/mini-eval).
+Source repository: [github.com/GautierPicon/Mini-Eval](https://github.com/GautierPicon/Mini-Eval).
 
 ## Pages
 
@@ -34,7 +34,7 @@ The training repository is a dependency, declared in `pyproject.toml`:
 
 ```
 [tool.uv.sources]
-mini-llm = { path = "../mini-llm", editable = true }
+mini-llm = { path = "../Mini-LLM", editable = true }
 ```
 
 That is convenient while developing. For reported numbers, pin an exact tag instead
