@@ -39,7 +39,9 @@ uv run pytest
 ## Adding a model
 
 1. A **reference model**: add an entry with `kind: hf`, the Hub id and a `revision`,
-   plus its parameter counts and the tokens it saw.
+   plus its parameter counts and the tokens it saw. If the model's native context
+   does not fit the eval machine, add `max_length: N` to cap it: the value is passed
+   to lm-eval and recorded in the run metadata.
 2. One of **your models**: copy the checkpoint into the training repository's
    `models/` folder (the `tok.json` next to it is used), add an entry with
    `kind: native` and `checkpoint: <file name>`, run

@@ -45,6 +45,9 @@ lineage warning in [Mini-LLM training](../Mini-LLM/training.md#training-a-150m-m
   which allows comparisons at an equal number of training tokens.
 - **Native models** are identified by the SHA-256 of the checkpoint and of `tok.json`,
   stored in `models.yaml`. A run is refused if the files on disk do not match.
+- A model runs at its **native context length** unless `max_length` caps it in
+  `models.yaml`; the cap is explicit and recorded in the metadata. SmolLM2-135M
+  runs at Pythia's 2,048 tokens (its native 8,192 does not fit the eval machine).
 - Size is described by **non-embedding parameters** as well as total parameters,
   because embeddings are a very different share of the total from one model to
   another (about 73% for Pythia-70M).
