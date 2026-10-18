@@ -31,18 +31,25 @@ Mini-Eval builds its evaluation backend on exactly these entry points; see
 
 Trained checkpoints live in `models/`:
 
-| Checkpoint                              | Steps | Tokens seen | Val loss |
-| --------------------------------------- | ----- | ----------- | -------- |
-| `mini-llm-base-34M-12000steps.pt`       | 12000 | ~0.20B      | 3.618    |
-| `mini-llm-base-70M-22000steps.pt`       | 22000 | ~1.44B      | 3.030    |
-| `mini-llm-assistant-34M.pt` (epoch 3)   | 5598  | SFT         | 3.194    |
-| `mini-llm-assistant-70M.pt` (epoch 2/3) | 3800  | SFT         | 2.718    |
+| Checkpoint                               | Steps | Tokens seen | Val loss |
+| ---------------------------------------- | ----- | ----------- | -------- |
+| `mini-llm-base-34M-12000steps.pt`        | 12000 | ~0.20B      | 3.618    |
+| `mini-llm-base-70M-22000steps.pt`        | 22000 | ~1.44B      | 3.030    |
+| `mini-llm-base-150M-34332steps.pt`       | 34332 | ~4.50B      | 2.941    |
+| `mini-llm-assistant-34M.pt` (epoch 3)    | 5598  | SFT         | 3.194    |
+| `mini-llm-assistant-70M.pt` (epoch 2/3)  | 3800  | SFT         | 2.718    |
+| `mini-llm-assistant-150M.pt` (epoch 2/2) | 3880  | SFT         | 2.780    |
 
 The 70M base was trained on the cloud (`cloud/run.sh`: `SIZE=70M`, `STEPS=22000`,
-`PREP_MILLIONS=1500`, CUDA batch `32x4x512`, so `65536` tokens/step). The
-34M-12000steps model is a continued run (`--init` from 6000 steps, `phase_start=6000`),
-so its `val.bin` differs: base val losses are not directly comparable across data
-mixes. See [Training](training.md#training-on-more-data).
+`PREP_MILLIONS=1500`, CUDA batch `32x4x512`, so `65536` tokens/step), and so was the
+150M base (`SIZE=150M`, `STEPS=34332`, CUDA batch `64x4x512`, so `131072` tokens/step,
+4.50B tokens over the 32k vocabulary). The 34M-12000steps model is a continued run
+(`--init` from 6000 steps, `phase_start=6000`), so its `val.bin` differs: base val
+losses are not directly comparable across data mixes (see
+[Training](training.md#training-on-more-data)). The 150M row also predicts among 32k
+tokens instead of 16k: val losses are not comparable across tokenizers either —
+compare lineages with bits per byte (see
+[Training a 150M model](training.md#training-a-150m-model)).
 
 ## Conversation format
 
