@@ -6,12 +6,12 @@ zero logit difference (checked automatically, `max abs diff` must be `< 1e-5` be
 and after a `from_pretrained` reload):
 
 ```
-uv run export models/32k/mini-llm-base-40M-35096steps.pt --base
-uv run export models/32k/mini-llm-assistant-40M.pt
-uv run export mini-llm-base-34M-12000steps.pt
-uv run export mini-llm-assistant-34M.pt
-uv run export mini-llm-base-70M-22000steps.pt
-uv run export mini-llm-assistant-70M.pt
+uv run export models/32k/40M/mini-llm-base-40M-35096steps.pt --base
+uv run export models/32k/40M/mini-llm-assistant-40M.pt
+uv run export models/16k/mini-llm-base-34M-12000steps.pt
+uv run export models/16k/mini-llm-assistant-34M.pt
+uv run export models/16k/mini-llm-base-70M-22000steps.pt
+uv run export models/16k/mini-llm-assistant-70M.pt
 ```
 
 `--base` is for base models: the tokenizer ships without the chat template and

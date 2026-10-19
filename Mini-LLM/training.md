@@ -82,9 +82,9 @@ tokenizer.
 
 - **Tokenizer (32k).** `models/32k/tok.json` is the 32k BPE, trained by `prep`
   (`--vocab 32768`, 300k documents, same normalizer/pre-tokenizer/`<eos>` as 16k).
-  Each lineage lives in its own folder (`models/16k/` for 34M/70M, `models/32k/` for
-  40M/150M), and every checkpoint reads the `tok.json` next to it, so old models keep
-  working.
+  Each lineage keeps a single `tok.json` (`models/16k/` for 34M/70M, `models/32k/` for
+  40M/150M) and each size stores its checkpoints in its own subfolder
+  (`models/32k/40M/`, `models/32k/150M/`), so old models keep working.
 - **Data budget.** Cloud runs use 131,072 tokens/step (`64x4x512`): 40M for 35,096
   steps ≈ 4.6B tokens (~108 tokens/param), 150M for 34,332 steps ≈ 4.5B tokens
   (~29 tokens/param, ≤1 pass over `train.bin`). `prep` writes `data/meta.json`

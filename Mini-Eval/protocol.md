@@ -7,7 +7,9 @@ included, is then evaluated again.
 
 **What changed in v2:** runs are produced on the Linux GPU server only (CUDA), every
 model runs at its native context length (the v1 cap that held SmolLM2-135M at 2048
-tokens is removed, so it runs at 8192), and the suite batch size is 4.
+tokens is removed, so it runs at 8192), and the suite batch size is 4. The lineup
+replaces `mini-llm-34M-12000steps` with `mini-llm-40M-35096steps` and adds
+`pythia-160m-step143000` beside the 70M reference.
 
 ## Fixed settings
 
@@ -48,7 +50,8 @@ lineage warning in [Mini-LLM training](../Mini-LLM/training.md#training-a-40m-or
 
 - **References** are Hugging Face models pinned to a revision. Pythia publishes
   intermediate checkpoints (`step64`, `step128`, ...) at 2,097,152 tokens per step,
-  which allows comparisons at an equal number of training tokens.
+  which allows comparisons at an equal number of training tokens; v2 uses `step143000`
+  for both Pythia-70M and Pythia-160M.
 - **Native models** are identified by the SHA-256 of the checkpoint and of `tok.json`,
   stored in `models.yaml`. A run is refused if the files on disk do not match.
 - Every model runs at its **native context length**; the value is recorded in the run

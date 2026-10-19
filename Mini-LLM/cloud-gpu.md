@@ -38,8 +38,8 @@ and data guards are in place before `prep` is started.
 - `smoke` is a 100-step check whose reported `tok/s` is the number to watch when
   choosing a GPU for the full run.
 - `sft` passes the base checkpoint explicitly
-  (`models/<lineage>/mini-llm-base-<SIZE>-<STEPS>steps.pt`): automatic selection ranks
-  by step count, which can pick another size (70M, 150M).
+  (`models/<lineage>/<SIZE>/mini-llm-base-<SIZE>-<STEPS>steps.pt`): automatic selection
+  ranks by step count, which can pick another size (70M, 150M).
 - `eval` runs `mini-eval check` then the `small_lm` suite on protocol v2 (six models,
   CUDA, full test sets) from the sibling `../Mini-Eval` checkout (`MINI_EVAL_DIR`
   overrides the path). It needs `uv sync` in Mini-Eval and the new checkpoint's

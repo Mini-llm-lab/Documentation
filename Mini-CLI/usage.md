@@ -7,7 +7,7 @@
 
 # real local model (needs MINI_PYTHON + MINI_ENGINE_PATH)
 ./mini run --model ../Mini-LLM/models/16k "Hello"
-./mini run --model ../Mini-LLM/models/32k "Hello" --max-tokens 64   # 40M/150M assistant (newest file)
+./mini run --model ../Mini-LLM/models/32k/150M "Hello" --max-tokens 64   # 150M assistant (40M after its SFT)
 ./mini run --model ../Mini-LLM/exports/mini-llm-assistant-34M-hf "Hello" --max-tokens 64 --temperature 0.5
 
 # models

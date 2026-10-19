@@ -34,7 +34,7 @@ Typical sequence:
 uv run mini-eval list
 uv run mini-eval fingerprint mini-llm-40M-35096steps
 uv run mini-eval check mini-llm-40M-35096steps --device cuda
-uv run mini-eval run smoke mini-llm-34M-12000steps pythia-70m-step128 --device cuda
+uv run mini-eval run smoke mini-llm-40M-35096steps pythia-70m-step128 --device cuda
 uv run mini-eval run small_lm --all --device cuda --require-clean
 uv run mini-eval report small_lm
 uv run pytest
