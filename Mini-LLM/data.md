@@ -53,8 +53,10 @@ see [Architecture](architecture.md#conversation-format).
 `prep` writes `data/train.bin`, `data/val.bin` and `data/meta.json` (`vocab`,
 tokenizer hash, train/val token counts). Token ids are stored as `uint16`, so
 `Cfg.vocab` must stay at or below 65,536. Changing `vocab` invalidates `tok.json` and
-the data: delete them and run `prep` again. `pretrain` aborts if the vocab or
-tokenizer hash in `meta.json` does not match.
+the data: delete them and run `prep` again. `pretrain` aborts if the vocab, the
+tokenizer hash or the `.bin` token counts in `meta.json` do not match (a
+16k-tokenized file next to a 32k `meta.json` passes the first two checks, so the
+lengths are compared as well).
 
 ## See also
 

@@ -1,7 +1,8 @@
 # Mini documentation
 
-Documentation for the **Mini** project: three small language models (~34M, ~70M, ~150M
-parameters) designed, trained and run from scratch, with the tools built around them.
+Documentation for the **Mini** project: small language models (~40M and ~150M on the
+32k tokenizer lineage, plus the earlier ~34M and ~70M) designed, trained and run from
+scratch, with the tools built around them.
 
 This repository is the central place for everything that spans several repositories or
 that does not belong in a README. Each code repository keeps a short README with a

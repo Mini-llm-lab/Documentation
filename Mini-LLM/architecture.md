@@ -7,15 +7,19 @@ lives in `Cfg` (`PRESETS` in
 
 ## Sizes
 
-| Setting                   | 34M        | 70M        | 150M       |
-| ------------------------- | ---------- | ---------- | ---------- |
-| Parameters                | 34,087,424 | 69,975,680 | 152,596,224 |
-| `dim` (width)             | 512        | 640        | 768        |
-| `layers` (depth)          | 8          | 12         | 18         |
-| `heads` (attention heads) | 8          | 10         | 12         |
-| `ffn` (feed-forward size) | 1408       | 1728       | 2048       |
-| Vocabulary (BPE)          | 16,384     | 16,384     | 32,768     |
-| Context length            | 512 tokens | 512 tokens | 512 tokens |
+| Setting                   | 34M        | 40M        | 70M        | 150M        |
+| ------------------------- | ---------- | ---------- | ---------- | ----------- |
+| Parameters                | 34,087,424 | 42,476,032 | 69,975,680 | 152,596,224 |
+| `dim` (width)             | 512        | 512        | 640        | 768         |
+| `layers` (depth)          | 8          | 8          | 12         | 18          |
+| `heads` (attention heads) | 8          | 8          | 10         | 12          |
+| `ffn` (feed-forward size) | 1408       | 1408       | 1728       | 2048        |
+| Vocabulary (BPE)          | 16,384     | 32,768     | 16,384     | 32,768      |
+| Context length            | 512 tokens | 512 tokens | 512 tokens | 512 tokens  |
+
+The 40M preset is the 34M architecture on the 32k tokenizer lineage: the only
+difference is the larger embedding, so both models have the same 25,698,816
+non-embedding parameters.
 
 A single public interface exists for both the training code and the deployed model:
 
@@ -46,10 +50,10 @@ The 70M base was trained on the cloud (`cloud/run.sh`: `SIZE=70M`, `STEPS=22000`
 4.50B tokens over the 32k vocabulary). The 34M-12000steps model is a continued run
 (`--init` from 6000 steps, `phase_start=6000`), so its `val.bin` differs: base val
 losses are not directly comparable across data mixes (see
-[Training](training.md#training-on-more-data)). The 150M row also predicts among 32k
-tokens instead of 16k: val losses are not comparable across tokenizers either —
-compare lineages with bits per byte (see
-[Training a 150M model](training.md#training-a-150m-model)).
+[Training](training.md#training-on-more-data)). The 32k-lineage rows also predict
+among 32k tokens instead of 16k: val losses are not comparable across tokenizers
+either — compare lineages with bits per byte (see
+[Training a 40M or 150M model](training.md#training-a-40m-or-150m-model)).
 
 ## Conversation format
 

@@ -34,7 +34,7 @@ network). The first download obviously needs internet — see
 
 - Real generation needs Python + torch (~300 MB for 70M fp32). `go build` alone does
   not bundle them.
-- Small 34M/70M models hallucinate; 512-token context; no conversation memory (these
+- The mini-llm models hallucinate; 512-token context; no conversation memory (these
   models anchor on earlier turns and degrade).
 - `pull` needs a trusted registry; none is hardcoded.
 - CPU is fine; CUDA used automatically by the engine when available.

@@ -8,18 +8,22 @@ models for probabilities, and `lm-eval` computes the scores.
 
 Source repository: [github.com/Mini-llm-lab/Mini-Eval](https://github.com/Mini-llm-lab/Mini-Eval).
 
+**Server only.** Protocol v2 numbers are produced on the Linux GPU server (CUDA),
+from a committed tree. The package refuses to import on macOS: there is no local
+path to results, and `uv run pytest` also runs on the server.
+
 ## Pages
 
 | Page                          | Content                                                          |
 | ----------------------------- | ---------------------------------------------------------------- |
-| [Protocol](protocol.md)       | The rules that make every number comparable (v1)                 |
+| [Protocol](protocol.md)       | The rules that make every number comparable (v2)                 |
 | [Workflow](workflow.md)       | `list`, `fingerprint`, `check`, `run`, `report`; adding a model  |
 | [Backend](backend.md)         | How native `.pt` models are evaluated without an export step     |
 | [Results](results.md)         | Where runs are stored and what a report contains                 |
 
 ## Setup
 
-Requires [uv](https://docs.astral.sh/uv/).
+On the server, requires [uv](https://docs.astral.sh/uv/).
 
 ```
 uv sync
@@ -45,10 +49,10 @@ produces the probabilities is identified by a commit.
 
 ```
 uv run mini-eval list
-uv run mini-eval fingerprint mini-llm-34M-12000steps
-uv run mini-eval check mini-llm-34M-12000steps
-uv run mini-eval run smoke mini-llm-34M-12000steps pythia-70m-step128
-uv run mini-eval run small_lm --all --require-clean
+uv run mini-eval fingerprint mini-llm-40M-35096steps
+uv run mini-eval check mini-llm-40M-35096steps --device cuda
+uv run mini-eval run smoke mini-llm-34M-12000steps pythia-70m-step128 --device cuda
+uv run mini-eval run small_lm --all --device cuda --require-clean
 uv run mini-eval report small_lm
 uv run pytest
 ```

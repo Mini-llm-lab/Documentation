@@ -67,24 +67,34 @@ Constraints:
   Compare such runs with bits per byte instead — see
   [Mini-Eval](../Mini-Eval/protocol.md#suite-smalllm).
 
-## Training a 150M model
+## Training a 40M or 150M model
 
-Preset `150M` (`Cfg(dim=768, layers=18, heads=12, ffn=2048, vocab=32768)`,
-152,596,224 parameters, embeddings shared): the 34M/70M presets are unchanged and
-their checkpoints still load with the 16k tokenizer.
+The 32k lineage has two presets (see the [sizes table](architecture.md#sizes)):
+
+- **40M** — the 34M architecture (`dim=512, layers=8, heads=8, ffn=1408`) with a
+  32,768-token vocabulary: 42,476,032 parameters, 25,698,816 non-embedding. New
+  embedding parameters (32,768 × 512) are the only difference from 34M.
+- **150M** — `dim=768, layers=18, heads=12, ffn=2048`: 152,596,224 parameters,
+  embeddings shared.
+
+The 34M/70M presets are unchanged and their checkpoints still load with the 16k
+tokenizer.
 
 - **Tokenizer (32k).** `models/32k/tok.json` is the 32k BPE, trained by `prep`
   (`--vocab 32768`, 300k documents, same normalizer/pre-tokenizer/`<eos>` as 16k).
   Each lineage lives in its own folder (`models/16k/` for 34M/70M, `models/32k/` for
-  150M), and every checkpoint reads the `tok.json` next to it, so old models keep
+  40M/150M), and every checkpoint reads the `tok.json` next to it, so old models keep
   working.
-- **Data budget.** 34,332 steps × 131,072 tokens/step ≈ 4.5B tokens (~29
-  tokens/param, ≤1 pass over `train.bin`). `prep` writes `data/meta.json` (`vocab`,
-  tokenizer hash, train/val token counts); keep it next to the `.bin` files.
-  `pretrain` aborts if the vocab or tokenizer hash does not match.
+- **Data budget.** Cloud runs use 131,072 tokens/step (`64x4x512`): 40M for 35,096
+  steps ≈ 4.6B tokens (~108 tokens/param), 150M for 34,332 steps ≈ 4.5B tokens
+  (~29 tokens/param, ≤1 pass over `train.bin`). `prep` writes `data/meta.json`
+  (`vocab`, tokenizer hash, train/val token counts); keep it next to the `.bin`
+  files. `pretrain` aborts if the vocab, the tokenizer hash or the `.bin` token
+  counts do not match — a 16k-tokenized `train.bin` next to a 32k `meta.json` would
+  pass the older checks, so the lengths are compared too.
 - **Run.** Everything goes through `cloud/run.sh` — see [Cloud GPU](cloud-gpu.md).
   `sft` does 2 epochs (the 70M overfit at epoch 3). `pack` archives
-  `models/32k/tok.json`, the final 150M base + assistant and `data/meta.json`
+  `models/32k/tok.json`, the final base + assistant and `data/meta.json`
   (milestones excluded, `.state.pt` excluded).
 - **Comparing across tokenizers.** Val losses of the 16k and 32k lineages are **not
   comparable** (predicting among 32k tokens is a different task). Compare with bits

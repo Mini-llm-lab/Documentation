@@ -6,11 +6,18 @@ zero logit difference (checked automatically, `max abs diff` must be `< 1e-5` be
 and after a `from_pretrained` reload):
 
 ```
+uv run export models/32k/mini-llm-base-40M-35096steps.pt --base
+uv run export models/32k/mini-llm-assistant-40M.pt
 uv run export mini-llm-base-34M-12000steps.pt
 uv run export mini-llm-assistant-34M.pt
 uv run export mini-llm-base-70M-22000steps.pt
 uv run export mini-llm-assistant-70M.pt
 ```
+
+`--base` is for base models: the tokenizer ships without the chat template and
+`generation_config.json` keeps the model defaults instead of the assistant's sampling.
+Output directories are `exports/<checkpoint stem>-hf` at the repository root
+(`--out` overrides); `exports/` and `*.safetensors` are ignored by Git.
 
 ## Output
 
@@ -20,24 +27,30 @@ Each output directory is self-contained and Hub-ready:
 | --------------------------- | -------------------------------------------------------------------- |
 | `config.json`               | Model configuration                                                  |
 | `model.safetensors`         | Weights, tied `head` deduplicated                                    |
-| `tokenizer.json` + `tokenizer_config.json` | Tokenizer (+ `chat_template.jinja` matching the `User:/Assistant:` training format) |
-| `generation_config.json`    | Same sampling as `chat.py`                                           |
+| `tokenizer.json` + `tokenizer_config.json` | Tokenizer (`chat_template.jinja` for assistants, matching the `User:/Assistant:` training format) |
+| `generation_config.json`    | Assistant: same sampling as `chat.py`; base: model defaults          |
 | `configuration_mini_llm.py` / `modeling_mini_llm.py` | For `trust_remote_code`                                 |
 
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
-tok = AutoTokenizer.from_pretrained("exports/mini-llm-assistant-34M-hf", trust_remote_code=True)
-model = AutoModelForCausalLM.from_pretrained("exports/mini-llm-assistant-34M-hf", trust_remote_code=True)
+tok = AutoTokenizer.from_pretrained("exports/mini-llm-assistant-40M-hf", trust_remote_code=True)
+model = AutoModelForCausalLM.from_pretrained("exports/mini-llm-assistant-40M-hf", trust_remote_code=True)
 ```
 
 ## Upload
 
+The 40M pair is published as `GautierP/MiniLLM-40M-base` (base model) and
+`GautierP/MiniLLM-40M` (assistant):
+
 ```
-huggingface-cli upload <org>/<repo> exports/<name>-hf .
+huggingface-cli upload GautierP/MiniLLM-40M-base exports/mini-llm-base-40M-35096steps-hf .
+huggingface-cli upload GautierP/MiniLLM-40M      exports/mini-llm-assistant-40M-hf .
 ```
 
-`exports/` and `*.safetensors` are ignored by Git. `uv run pytest` covers the
-native/HF parity (`tests/test_hf_export.py`).
+Copy each model card (`hf/mini-llm-base-40M/README.md`,
+`hf/mini-llm-assistant-40M/README.md`) into its export directory before uploading, so
+the Hub renders the details and the cross-links. `uv run pytest` covers the native/HF
+parity (`tests/test_hf_export.py`).
 
 ## See also
 

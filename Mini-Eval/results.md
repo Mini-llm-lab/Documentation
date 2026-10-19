@@ -18,5 +18,6 @@ are rebuilt.
 
 `uv run pytest` runs the adapter against hand computations, inside the real `lm-eval`
 harness on a tiny local task, and the registry, runner and report logic. These tests
-use fake models and need no network. `tests/test_native.py` is skipped unless PyTorch
-and the training package are installed.
+use fake models and need no network. They run on the server too: the package refuses
+to import on macOS, so there is no local test path either. `tests/test_native.py` is
+skipped unless PyTorch and the training package are installed.
