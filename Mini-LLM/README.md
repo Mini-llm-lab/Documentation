@@ -62,7 +62,8 @@ Mini-LLM/
         ├── prompt.py      conversation format shared by sft and chat
         ├── identity.py    identity, small-talk and arithmetic examples for sft
         ├── prep.py        tokenizer and data preparation
-        ├── pretrain.py    pretraining
+        ├── pretrain.py    pretraining and distillation
+        ├── teacher.py     download and convert the 150M base for distillation
         ├── sft.py         fine-tuning into an assistant
         ├── chat.py        chat interface
         ├── checkpoints.py saving, loading and selecting checkpoints

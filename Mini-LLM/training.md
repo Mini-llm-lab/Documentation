@@ -13,7 +13,7 @@ uv run chat
 | Command                                                  | What it does                                                                  | Notes                                   |
 | -------------------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------- |
 | `uv run prep [millions]`                                 | Trains the tokenizer (if missing) and tokenizes a FineWeb-Edu + Wikipedia mix | Full data via `cloud/run.sh prep`       |
-| `uv run pretrain [steps] [--resume] [--init checkpoint]` | Pretraining: learn to predict the next token                                  | Full run via `cloud/run.sh train`       |
+| `uv run pretrain [steps] [--resume] [--init checkpoint] [--teacher checkpoint]` | Pretraining: learn to predict the next token | Full run via `cloud/run.sh train` |
 | `uv run sft [epochs] [base] [--resume]`                  | Supervised fine-tuning on question/answer pairs                               | Full run via `cloud/run.sh sft`         |
 | `uv run chat [checkpoint]`                               | Chat with the assistant (Ctrl+C to quit)                                      |                                         |
 | `uv run export [checkpoint] [--out dir]`                 | Exports a checkpoint to Hugging Face format                                   | [Export](export-hf.md)                  |
@@ -99,6 +99,35 @@ tokenizer.
 - **Comparing across tokenizers.** Val losses of the 16k and 32k lineages are **not
   comparable** (predicting among 32k tokens is a different task). Compare with bits
   per byte instead — see the `wikitext` column in [Mini-Eval](../Mini-Eval/protocol.md).
+
+## Distillation from the 150M base
+
+The 40M can learn from the finished 150M base instead of starting cold. The teacher
+is downloaded from `GautierP/MiniLLM-150M` (subfolder `base/`), checked against a
+pinned `sha256`, converted to the native format and verified against the HF logits:
+
+```
+uv run teacher
+uv run pretrain 35096 --size 40M --teacher models/32k/150M/teacher-150M-base.pt
+```
+
+The teacher is frozen and the loss becomes `(1 - a) * CE + a * T² * KL`, with
+`a = 0.5` (`--kd-weight`) and `T = 2.0` (`--kd-temp`). Both models share the 32k
+tokenizer, so the logits align token for token; `kd_loss` chunks the 32k logits
+instead of materializing them all at once.
+
+- The student still starts from random weights: this is distillation, not `--init`.
+  `--init` remains reserved for continuing the same configuration.
+- The data and `val.bin` are the 150M ones, so the val loss is directly comparable
+  to the 150M's 2.941 and to a 40M run without a teacher.
+- A distillation step costs about twice a plain 40M step: expect ~6-7 h for the
+  35,096-step run on the GPU that trained the 150M in 8 h.
+- `--resume` needs the same `--teacher/--kd-weight/--kd-temp`; the settings are
+  stored in the `.state.pt` and a mismatch is refused.
+- Keep the converted teacher as `teacher-150M-base.pt`. The canonical
+  `mini-llm-base-150M-34332steps.pt` has a pinned `sha256` in Mini-Eval, and
+  re-saving it with the conversion changes its bytes. `pack` only archives
+  `mini-llm-base-*` and `mini-llm-assistant-*`, so the teacher is not shipped.
 
 ## See also
 

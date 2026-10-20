@@ -11,6 +11,7 @@ tokenizer), 35,096 steps, 4600M tokens.
 ```
 cloud/run.sh setup   # uv sync, CUDA check, then cloud/preflight.sh
 cloud/run.sh prep    # 4600M tokens, background
+cloud/run.sh teacher # download + convert the 150M base teacher
 cloud/run.sh smoke   # 100-step check, note the tok/s
 cloud/run.sh train   # 35,096 steps, background, adds --resume automatically
 cloud/run.sh sft     # 2 epochs on the base run above
@@ -29,6 +30,12 @@ and data guards are in place before `prep` is started.
 - `prep` refuses to reuse a `data/` folder whose `meta.json` is not for the lineage
   the script targets; `PREP_FORCE=1` overwrites it. `pretrain` additionally refuses
   `.bin` files whose token counts do not match `meta.json`, with or without the flag.
+- `teacher` downloads `base/` from `GautierP/MiniLLM-150M`, checks the pinned
+  `sha256`, converts it to `models/32k/150M/teacher-150M-base.pt` and verifies the
+  logits against the HF model. `train` adds `--teacher` plus the KD arguments when
+  `TEACHER` is set:
+  `TEACHER=models/32k/150M/teacher-150M-base.pt cloud/run.sh train`.
+  See [Training](training.md#distillation-from-the-150m-base).
 - `train` adds `--resume` automatically, so the same command restarts a run that was
   interrupted. See [Training](training.md#resuming-a-run) for the rules `--resume`
   must follow.

@@ -16,6 +16,9 @@ Things to keep in mind when changing the code:
 - Checkpoints are loaded with `weights_only=True`. Only legacy checkpoints that
   pickled the `Cfg` object itself fall back to unrestricted loading. Never load a
   `.pt` file from an untrusted source.
+- The distillation teacher is a derived file (`teacher-150M-base.pt`). Do not
+  overwrite `mini-llm-base-150M-34332steps.pt` with a converted copy: Mini-Eval pins
+  its `sha256`, and re-saving changes the bytes even when the weights are identical.
 - `prep.py` ends with `os._exit(0)` on purpose: the Hugging Face streaming workers can
   keep the interpreter from exiting after the data is written. The files are already
   closed at that point.
