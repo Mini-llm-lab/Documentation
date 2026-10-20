@@ -8,10 +8,12 @@ and after a `from_pretrained` reload):
 ```
 uv run export models/32k/40M/mini-llm-base-40M-35096steps.pt --base
 uv run export models/32k/40M/mini-llm-assistant-40M.pt
-uv run export models/16k/mini-llm-base-34M-12000steps.pt
+uv run export models/16k/mini-llm-base-34M-12000steps.pt --base
 uv run export models/16k/mini-llm-assistant-34M.pt
-uv run export models/16k/mini-llm-base-70M-22000steps.pt
+uv run export models/16k/mini-llm-base-70M-22000steps.pt --base
 uv run export models/16k/mini-llm-assistant-70M.pt
+uv run export models/32k/150M/mini-llm-base-150M-34332steps.pt --base
+uv run export models/32k/150M/mini-llm-assistant-150M.pt
 ```
 
 `--base` is for base models: the tokenizer ships without the chat template and
@@ -39,18 +41,35 @@ model = AutoModelForCausalLM.from_pretrained("exports/mini-llm-assistant-40M-hf"
 
 ## Upload
 
-The 40M pair is published as `GautierP/MiniLLM-40M-base` (base model) and
-`GautierP/MiniLLM-40M` (assistant):
+The 40M pair is published as two repositories, `GautierP/MiniLLM-40M-base` (base
+model) and `GautierP/MiniLLM-40M` (assistant):
 
 ```
-huggingface-cli upload GautierP/MiniLLM-40M-base exports/mini-llm-base-40M-35096steps-hf .
-huggingface-cli upload GautierP/MiniLLM-40M      exports/mini-llm-assistant-40M-hf .
+hf upload GautierP/MiniLLM-40M-base exports/mini-llm-base-40M-35096steps-hf .
+hf upload GautierP/MiniLLM-40M      exports/mini-llm-assistant-40M-hf .
 ```
 
-Copy each model card (`hf/mini-llm-base-40M/README.md`,
-`hf/mini-llm-assistant-40M/README.md`) into its export directory before uploading, so
-the Hub renders the details and the cross-links. `uv run pytest` covers the native/HF
-parity (`tests/test_hf_export.py`).
+For the 150M and 70M models, the base weights live in the **same repository as the
+assistant**, under `base/`. The assistant stays at the repository root, so existing
+`from_pretrained("GautierP/MiniLLM-150M")` calls are unchanged:
+
+```
+hf upload GautierP/MiniLLM-150M exports/mini-llm-base-150M-34332steps-hf base
+hf upload GautierP/MiniLLM-70M  exports/mini-llm-base-70M-22000steps-hf base
+```
+
+Load the base model with `subfolder="base"`:
+
+```python
+tok = AutoTokenizer.from_pretrained(repo, subfolder="base", trust_remote_code=True)
+model = AutoModelForCausalLM.from_pretrained(repo, subfolder="base", trust_remote_code=True)
+```
+
+Copy each model card (`hf/mini-llm-assistant-*/README.md`) into its export directory
+before uploading, so the Hub renders the details and the cross-links. The 150M/70M
+cards document the base weights in their "Base model" section; upload those cards to
+the repository root alongside the assistant files. `uv run pytest` covers the
+native/HF parity (`tests/test_hf_export.py`).
 
 ## See also
 
