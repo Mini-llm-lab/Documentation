@@ -3,7 +3,26 @@
 Training checkpoints (`.pt`, pickle) stay as-is: they carry optimizer state for
 `--resume`. `export` converts the finished weights to the deployable convention, with
 zero logit difference (checked automatically, `max abs diff` must be `< 1e-5` before
-and after a `from_pretrained` reload):
+and after a `from_pretrained` reload).
+
+## Tests before export
+
+Run the suites on the server before exporting, and before uploading to the Hub:
+
+```
+cloud/run.sh test
+```
+
+It runs `uv run pytest` in the training repository and, when the sibling
+`../Mini-Eval` checkout exists, its `pytest` too (Linux only). `cloud/run.sh eval`
+then runs the protocol checks on the new checkpoint. To run the tests and export both
+the base and the assistant of the configured `SIZE` in one command:
+
+```
+cloud/run.sh export-hf
+```
+
+The manual per-model commands:
 
 ```
 uv run export models/32k/40M/mini-llm-base-40M-35096steps.pt --base
@@ -68,8 +87,9 @@ model = AutoModelForCausalLM.from_pretrained(repo, subfolder="base", trust_remot
 Copy each model card (`hf/mini-llm-assistant-*/README.md`) into its export directory
 before uploading, so the Hub renders the details and the cross-links. The 150M/70M
 cards document the base weights in their "Base model" section; upload those cards to
-the repository root alongside the assistant files. `uv run pytest` covers the
-native/HF parity (`tests/test_hf_export.py`).
+the repository root alongside the assistant files. `tests/test_hf_export.py` covers
+the native/HF parity; `cloud/run.sh test` runs the whole suite (training repository
+and sibling Mini-Eval) before export.
 
 ## See also
 

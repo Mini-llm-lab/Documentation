@@ -16,6 +16,8 @@ cloud/run.sh smoke   # 100-step check (KD when TEACHER is set), note the tok/s
 cloud/run.sh train   # 35,096 steps, background, adds --resume automatically
 cloud/run.sh sft     # 2 epochs on the base run above
 cloud/run.sh eval    # protocol v2 suite, on the pod GPU
+cloud/run.sh test    # pytest, training repo + sibling Mini-Eval
+cloud/run.sh export-hf # tests, then export base + assistant
 cloud/run.sh status
 cloud/run.sh pack
 ```
@@ -53,6 +55,10 @@ and data guards are in place before `prep` is started.
   overrides the path). It needs `uv sync` in Mini-Eval and the new checkpoint's
   `sha256` filled in its `models.yaml` (`mini-eval fingerprint`); `mini-eval` itself
   refuses to run anywhere but Linux.
+- `test` runs `uv run pytest` in this repository and, when the sibling `../Mini-Eval`
+  checkout exists on Linux, its suite too. `export-hf` runs it first, then exports
+  the base and assistant of the configured `SIZE`; `export` also checks native/HF
+  logit parity on its own.
 - `pack` archives the deliverable files: the lineage `tok.json` (e.g.
   `models/32k/tok.json` for 40M), the final base + assistant checkpoints and
   `data/meta.json`. Milestones and `.state.pt` files are excluded.
