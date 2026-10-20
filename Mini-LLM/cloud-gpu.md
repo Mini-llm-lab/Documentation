@@ -12,7 +12,7 @@ tokenizer), 35,096 steps, 4600M tokens.
 cloud/run.sh setup   # uv sync, CUDA check, then cloud/preflight.sh
 cloud/run.sh prep    # 4600M tokens, background
 cloud/run.sh teacher # download + convert the 150M base teacher
-cloud/run.sh smoke   # 100-step check, note the tok/s
+cloud/run.sh smoke   # 100-step check (KD when TEACHER is set), note the tok/s
 cloud/run.sh train   # 35,096 steps, background, adds --resume automatically
 cloud/run.sh sft     # 2 epochs on the base run above
 cloud/run.sh eval    # protocol v2 suite, on the pod GPU
@@ -43,7 +43,8 @@ and data guards are in place before `prep` is started.
   compatible (the optimizer now uses two parameter groups with different weight
   decay).
 - `smoke` is a 100-step check whose reported `tok/s` is the number to watch when
-  choosing a GPU for the full run.
+  choosing a GPU for the full run. With `TEACHER` set it also runs the distillation
+  path and logs `ce` and `kd` separately.
 - `sft` passes the base checkpoint explicitly
   (`models/<lineage>/<SIZE>/mini-llm-base-<SIZE>-<STEPS>steps.pt`): automatic selection
   ranks by step count, which can pick another size (70M, 150M).
