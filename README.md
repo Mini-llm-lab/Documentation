@@ -28,7 +28,7 @@ quickstart and points here for the details.
 ```
 
 - **[Mini-LLM](Mini-LLM/README.md)** — the training repository. Everything is implemented
-  from scratch: BPE tokenizer, data preparation, the Llama-style architecture,
+  from scratch: BPE tokenizer, data preparation, the transformer decoder architecture,
   pretraining, supervised fine-tuning, chat, and export to Hugging Face format.
 - **[Mini-Eval](Mini-Eval/README.md)** — the evaluation repository. Runs the models
   against reference models (Pythia, ...) with `lm-evaluation-harness` and produces
