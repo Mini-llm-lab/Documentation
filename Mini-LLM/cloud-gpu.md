@@ -5,15 +5,19 @@ in `cloud/` target a RunPod pod with a persistent volume on `/workspace`.
 
 ## Usage
 
-Defaults for `cloud/run.sh`: the 40M preset (the 34M architecture on the 32k
-tokenizer), 35,096 steps, 4600M tokens.
+Defaults for `cloud/run.sh`: the **150M v2 recipe** — `SIZE=150M`, `STEPS=53375`,
+`PREP_MILLIONS=7300` (~7.0B tokens ≈ 46 tokens/param) on the `digit32k` lineage
+(digit-split tokenizer, ctx 2048). Checkpoints land in `models/digit32k/150M/`.
+
+Previous recipes stay reproducible by setting the variables: `SIZE=40M`, `STEPS=35096`,
+`PREP_MILLIONS=4600` puts everything back in `models/32k/40M/` (classic tokenizer).
 
 ```
 cloud/run.sh setup   # uv sync, CUDA check, then cloud/preflight.sh
-cloud/run.sh prep    # 4600M tokens, background
-cloud/run.sh teacher # download + convert the 150M base teacher
-cloud/run.sh smoke   # 100-step check (KD when TEACHER is set), note the tok/s
-cloud/run.sh train   # 35,096 steps, background, adds --resume automatically
+cloud/run.sh prep    # 7300M tokens, digit32k tokenizer, background
+cloud/run.sh teacher # download + convert the legacy 150M base teacher (legacy runs only, see note)
+cloud/run.sh smoke   # 100-step check, note the tok/s
+cloud/run.sh train   # 53,375 steps, background, adds --resume automatically
 cloud/run.sh sft     # 2 epochs on the base run above
 cloud/run.sh eval    # protocol v2 suite, on the pod GPU
 cloud/run.sh test    # pytest, training repo + sibling Mini-Eval
@@ -28,14 +32,17 @@ and data guards are in place before `prep` is started.
 ## Notes
 
 - `SIZE`, `STEPS` and `PREP_MILLIONS` at the top of `run.sh` are the single place to
-  switch a run: `40M`/35,096 and `150M`/34,332 are the two 32k-lineage recipes.
+  switch a run: `150M`/53,375 (v2, `digit32k`) and `40M`/35,096 (legacy, `32k`) are the
+  two 32k-lineage recipes. The 150M v2 preset relies on `pretrain`'s ctx-aware batch
+  defaults (micro-batches stay ≤ 65,536 tokens: 32×2×2048 = 131,072 tokens/step).
 - `prep` refuses to reuse a `data/` folder whose `meta.json` is not for the lineage
   the script targets; `PREP_FORCE=1` overwrites it. `pretrain` additionally refuses
   `.bin` files whose token counts do not match `meta.json`, with or without the flag.
-- `teacher` downloads `base/` from `GautierP/MiniLLM-150M`, checks the pinned
-  `sha256`, converts it to `models/32k/150M/teacher-150M-base.pt` and verifies the
-  logits against the HF model. `train` adds `--teacher` plus the KD arguments when
-  `TEACHER` is set:
+- `teacher` downloads `base/` from `GautierP/MiniLLM-150M` **for legacy runs** — the
+  legacy teacher cannot serve a `digit32k` student (`validate_teacher` blocks it).
+  It checks the pinned sha256, converts it to `models/32k/150M/teacher-150M-base.pt`
+  and verifies the logits against the HF model. `train` adds `--teacher` plus the KD
+  arguments when `TEACHER` is set:
   `TEACHER=models/32k/150M/teacher-150M-base.pt cloud/run.sh train`.
   See [Training](training.md#distillation-from-the-150m-base).
 - `train` adds `--resume` automatically, so the same command restarts a run that was

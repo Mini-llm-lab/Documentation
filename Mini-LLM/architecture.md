@@ -7,7 +7,7 @@ lives in `Cfg` (`PRESETS` in
 
 ## Sizes
 
-| Setting                   | 34M        | 40M        | 70M        | 150M        |
+| Setting                   | 34M        | 40M        | 70M        | 150M (v2)   |
 | ------------------------- | ---------- | ---------- | ---------- | ----------- |
 | Parameters                | 34,087,424 | 42,476,032 | 69,975,680 | 152,596,224 |
 | `dim` (width)             | 512        | 512        | 640        | 768         |
@@ -15,7 +15,14 @@ lives in `Cfg` (`PRESETS` in
 | `heads` (attention heads) | 8          | 8          | 10         | 12          |
 | `ffn` (feed-forward size) | 1408       | 1408       | 1728       | 2048        |
 | Vocabulary (BPE)          | 16,384     | 32,768     | 16,384     | 32,768      |
-| Context length            | 512 tokens | 512 tokens | 512 tokens | 512 tokens  |
+| Tokenizer lineage         | `16k`      | `32k`      | `16k`      | `digit32k`  |
+| Context length            | 512 tokens | 1024 tokens| 512 tokens | 2048 tokens |
+
+The 150M v2 runs on the `digit32k` lineage: same 32k-vocabulary BPE, but the
+pre-tokenizer isolates every digit (one token per digit, like modern GPT/llama
+tokenizers) so arithmetic never has to fight merged numbers. The `ctx` of the v2 150M
+preset is 2048 tokens. Older checkpoints keep their own stored configuration and stay
+loadable: adding the `lineage` field or changing a preset never breaks them.
 
 The 40M preset is the 34M architecture on the 32k tokenizer lineage: the only
 difference is the larger embedding, so both models have the same 25,698,816
@@ -44,6 +51,10 @@ Trained checkpoints live in `models/`:
 | `mini-llm-assistant-70M.pt` (epoch 2/3)  | 3800  | SFT         | 2.718    |
 | `mini-llm-assistant-150M.pt` (epoch 2/2) | 3880  | SFT         | 2.780    |
 
+The 150M v2 recipe (`SIZE=150M` in `cloud/run.sh`: `STEPS=53375`, ctx 2048, ~7B tokens
+on the `digit32k` lineage) produces `models/digit32k/150M/`; the rows above list the
+already-trained checkpoints of the older recipes.
+
 The 70M base was trained on the cloud (`cloud/run.sh`: `SIZE=70M`, `STEPS=22000`,
 `PREP_MILLIONS=1500`, CUDA batch `32x4x512`, so `65536` tokens/step), and so was the
 150M base (`SIZE=150M`, `STEPS=34332`, CUDA batch `64x4x512`, so `131072` tokens/step,
@@ -59,20 +70,24 @@ either — compare lineages with bits per byte (see
 
 The prompt format is defined once, in
 [`prompt.py`](https://github.com/Mini-llm-lab/Mini-LLM/blob/main/src/mini_llm/prompt.py),
-and shared by `sft` and `chat`:
+and shared by `sft` and `chat`. The format is **versioned per tokenizer lineage**:
 
-```
-User: <question>\nAssistant:
-```
+| Lineage     | Format                                                       |
+| ----------- | ------------------------------------------------------------ |
+| legacy (`16k`, `32k`) | `User: <question>\nAssistant:`                     |
+| v2 (`digit32k`)       | `System: <system>\nUser: <question>\nAssistant:`   |
 
-Multi-turn history is never sent: these small models anchor on their own previous
-answers and degrade when they see them, so `chat` (Mini-LLM and Mini-CLI alike)
-answers each question on its own and keeps a display transcript only.
-
-The format is exactly the training format. Changing it changes the behaviour of every
-model already trained with it, so it is treated as fixed. Mini-CLI reuses the same
-convention so that what you type in `mini chat` matches what the model saw in
-training; see [Mini-CLI inference](../Mini-CLI/inference.md).
+- v2 models always train with a system prompt: ~85 % of examples carry the short
+  default persona (`DEFAULT_SYSTEM_PROMPT`), a small share carries written variations
+  ("Answer in one sentence.", "Answer with a numbered list.", ...) with answers that
+  match the instruction, and word-problem examples (GSM8K) carry a math system prompt.
+- At inference, `chat` and the exported `chat_template.jinja` prepend the default
+  system prompt plus today's date unless the caller supplies their own system message.
+- Mini-CLI v2 models get the same treatment in `python/mini_engine.py`; what you type
+  in `mini chat` matches what the model saw in training.
+- Multi-turn: v2 SFT includes two-turn conversations (both assistant answers are
+  supervised), `chat` sends the last two answered turns, and the `digit32k` lineage
+  has room for it at ctx 2048. Legacy lineages keep the single-turn behaviour.
 
 ## See also
 
