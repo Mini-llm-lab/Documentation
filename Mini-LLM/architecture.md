@@ -80,8 +80,10 @@ and shared by `sft` and `chat`. The format is **versioned per tokenizer lineage*
 - 1.1 models always train with a system prompt: ~85 % of examples carry the short
   default persona (`DEFAULT_SYSTEM_PROMPT`), a small share carries written variations
   ("Answer in one sentence.", "Answer with a numbered list.",
-  "Use markdown: two headings and one bold conclusion.", ...) with answers that
+  "Answer with a markdown list of four items.", ...) with answers that
   match the instruction, and word-problem examples (GSM8K) carry a math system prompt.
+  The default persona limits markdown to lists on purpose: one element trained hard is
+  worth more than several learned halfway — no spontaneous headings or bold.
 - At inference, `chat` and the exported `chat_template.jinja` prepend the default
   system prompt plus today's date unless the caller supplies their own system message.
 - Mini-CLI 1.1 models get the same treatment in `python/mini_engine.py`; what you type

@@ -37,8 +37,9 @@ Sources (all English):
 - [`system_prompts.py`](https://github.com/Mini-llm-lab/Mini-LLM/blob/src/mini_llm/system_prompts.py)
   (1.1 only): the default system prompt plus hand-written variations
   ("Answer in one sentence.", "Answer with a numbered list.",
-  "Use markdown: two headings and one bold conclusion.", ...) whose answers match
-  the instruction — this is what teaches system-prompt obedience and markdown output —
+  "Answer with a markdown list of four items.", ...) whose answers match
+  the instruction — this is what teaches system-prompt obedience and markdown output
+  (lists only, on purpose — no headings or bold) —
   and "I don't know" calibration examples (uncertainty, never refusals).
 - [`math_data.py`](https://github.com/Mini-llm-lab/Mini-LLM/blob/main/src/mini_llm/math_data.py)
   (1.1 only): synthetic arithmetic and token-level skills, deterministic by seed:
