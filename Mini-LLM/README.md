@@ -56,8 +56,8 @@ Mini-LLM/
 ├── models/32k/              tok.json shared by the 40M (legacy) checkpoints
 ├── models/32k/40M/          40M checkpoints and milestones
 ├── models/32k/150M/         legacy 150M checkpoints (classic tokenizer, ctx 512)
-├── models/digit32k/         v2 tok.json (digit-split) + v2 checkpoints
-├── models/digit32k/150M/    v2 150M checkpoints and milestones
+├── models/digit32k/         1.1 tok.json (digit-split) + 1.1 checkpoints
+├── models/digit32k/150M/    1.1 150M checkpoints and milestones
 └── src/
     └── mini_llm/
         ├── config.py      model configuration, paths, device selection
@@ -65,7 +65,7 @@ Mini-LLM/
         ├── prompt.py      conversation format shared by sft and chat
         ├── identity.py    identity, small-talk and arithmetic examples for sft
         ├── system_prompts.py  default system prompt, obedience variations, uncertainty
-        ├── math_data.py   synthetic arithmetic and mini-skills for the v2 SFT
+        ├── math_data.py   synthetic arithmetic and mini-skills for the 1.1 SFT
         ├── prep.py        tokenizer and data preparation
         ├── pretrain.py    pretraining and distillation
         ├── teacher.py     download and convert the legacy 150M base for distillation

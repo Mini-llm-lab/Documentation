@@ -18,7 +18,7 @@ uv run chat
 | `uv run chat [checkpoint]`                               | Chat with the assistant (Ctrl+C to quit)                                      |                                         |
 | `uv run export [checkpoint] [--out dir]`                 | Exports a checkpoint to Hugging Face format                                   | [Export](export-hf.md)                  |
 
-`prep` also accepts `--lineage digit32k` (or `--size 150M`, which implies it since v2):
+`prep` also accepts `--lineage digit32k` (or `--size 150M`, which implies it since 1.1):
 that trains the digit-split tokenizer into `models/digit32k/tok.json` and marks
 `data/meta.json` with the lineage. `pretrain` refuses data whose stored lineage differs.
 
@@ -108,8 +108,8 @@ tokenizer.
 
 Legacy lineages only. The teacher (`teacher-150M-base.pt`) was trained on the classic
 32k tokenizer at ctx 512; `validate_teacher` requires the same tokenizer lineage and a
-teacher ctx ≥ student ctx, so a v2 student (`digit32k`, ctx 2048) **cannot** distill
-from it — the v2 150M, once trained, becomes the new teacher for a future v2 40M (the
+teacher ctx ≥ student ctx, so a 1.1 student (`digit32k`, ctx 2048) **cannot** distill
+from it — the 1.1 150M, once trained, becomes the new teacher for a future 1.1 40M (the
 student must then also move to `digit32k`).
 
 For a legacy student: the teacher is downloaded from `GautierP/MiniLLM-150M` (subfolder `base/`), checked against a

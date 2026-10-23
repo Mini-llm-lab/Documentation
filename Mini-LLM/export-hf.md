@@ -48,7 +48,7 @@ Each output directory is self-contained and Hub-ready:
 | --------------------------- | -------------------------------------------------------------------- |
 | `config.json`               | Model configuration                                                  |
 | `model.safetensors`         | Weights, tied `head` deduplicated                                    |
-| `tokenizer.json` + `tokenizer_config.json` | Tokenizer (`chat_template.jinja` for assistants, matching the `User:/Assistant:` training format) |
+| `tokenizer.json` + `tokenizer_config.json` | Tokenizer (`chat_template.jinja` for assistants, matching the training format: a `System:` line for the 1.1 lineage, plain `User:/Assistant:` otherwise) |
 | `generation_config.json`    | Assistant: same sampling as `chat.py`; base: model defaults          |
 | `configuration_mini_llm.py` / `modeling_mini_llm.py` | For `trust_remote_code`                                 |
 

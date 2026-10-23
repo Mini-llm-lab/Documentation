@@ -5,7 +5,7 @@ in `cloud/` target a RunPod pod with a persistent volume on `/workspace`.
 
 ## Usage
 
-Defaults for `cloud/run.sh`: the **150M v2 recipe** — `SIZE=150M`, `STEPS=53375`,
+Defaults for `cloud/run.sh`: the **150M 1.1 recipe** — `SIZE=150M`, `STEPS=53375`,
 `PREP_MILLIONS=7300` (~7.0B tokens ≈ 46 tokens/param) on the `digit32k` lineage
 (digit-split tokenizer, ctx 2048). Checkpoints land in `models/digit32k/150M/`.
 
@@ -32,8 +32,8 @@ and data guards are in place before `prep` is started.
 ## Notes
 
 - `SIZE`, `STEPS` and `PREP_MILLIONS` at the top of `run.sh` are the single place to
-  switch a run: `150M`/53,375 (v2, `digit32k`) and `40M`/35,096 (legacy, `32k`) are the
-  two 32k-lineage recipes. The 150M v2 preset relies on `pretrain`'s ctx-aware batch
+  switch a run: `150M`/53,375 (1.1, `digit32k`) and `40M`/35,096 (legacy, `32k`) are the
+  two 32k-lineage recipes. The 150M 1.1 preset relies on `pretrain`'s ctx-aware batch
   defaults (micro-batches stay ≤ 65,536 tokens: 32×2×2048 = 131,072 tokens/step).
 - `prep` refuses to reuse a `data/` folder whose `meta.json` is not for the lineage
   the script targets; `PREP_FORCE=1` overwrites it. `pretrain` additionally refuses
@@ -51,6 +51,12 @@ and data guards are in place before `prep` is started.
 - `--resume` from an old 34M `.state.pt` produced by a previous cloud run is no longer
   compatible (the optimizer now uses two parameter groups with different weight
   decay).
+- `setup` warns when no Hugging Face token is found (env `HF_TOKEN` / legacy
+  `HUGGING_FACE_HUB_TOKEN` or an earlier `hf auth login`). Anonymous downloads are
+  rate-limited and slow the paid hours down; `uv run hf auth login` once per pod is
+  enough because `HF_HOME` points at the persistent `/workspace/.hf`. Get a Read token
+  at [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens); never
+  commit one.
 - `smoke` is a 100-step check whose reported `tok/s` is the number to watch when
   choosing a GPU for the full run. With `TEACHER` set it also runs the distillation
   path and logs `ce` and `kd` separately.

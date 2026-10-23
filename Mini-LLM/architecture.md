@@ -7,7 +7,7 @@ lives in `Cfg` (`PRESETS` in
 
 ## Sizes
 
-| Setting                   | 34M        | 40M        | 70M        | 150M (v2)   |
+| Setting                   | 34M        | 40M        | 70M        | 150M (1.1)   |
 | ------------------------- | ---------- | ---------- | ---------- | ----------- |
 | Parameters                | 34,087,424 | 42,476,032 | 69,975,680 | 152,596,224 |
 | `dim` (width)             | 512        | 512        | 640        | 768         |
@@ -18,9 +18,9 @@ lives in `Cfg` (`PRESETS` in
 | Tokenizer lineage         | `16k`      | `32k`      | `16k`      | `digit32k`  |
 | Context length            | 512 tokens | 1024 tokens| 512 tokens | 2048 tokens |
 
-The 150M v2 runs on the `digit32k` lineage: same 32k-vocabulary BPE, but the
+The 150M 1.1 runs on the `digit32k` lineage: same 32k-vocabulary BPE, but the
 pre-tokenizer isolates every digit (one token per digit, like modern GPT/llama
-tokenizers) so arithmetic never has to fight merged numbers. The `ctx` of the v2 150M
+tokenizers) so arithmetic never has to fight merged numbers. The `ctx` of the 1.1 150M
 preset is 2048 tokens. Older checkpoints keep their own stored configuration and stay
 loadable: adding the `lineage` field or changing a preset never breaks them.
 
@@ -51,7 +51,7 @@ Trained checkpoints live in `models/`:
 | `mini-llm-assistant-70M.pt` (epoch 2/3)  | 3800  | SFT         | 2.718    |
 | `mini-llm-assistant-150M.pt` (epoch 2/2) | 3880  | SFT         | 2.780    |
 
-The 150M v2 recipe (`SIZE=150M` in `cloud/run.sh`: `STEPS=53375`, ctx 2048, ~7B tokens
+The 150M 1.1 recipe (`SIZE=150M` in `cloud/run.sh`: `STEPS=53375`, ctx 2048, ~7B tokens
 on the `digit32k` lineage) produces `models/digit32k/150M/`; the rows above list the
 already-trained checkpoints of the older recipes.
 
@@ -75,17 +75,18 @@ and shared by `sft` and `chat`. The format is **versioned per tokenizer lineage*
 | Lineage     | Format                                                       |
 | ----------- | ------------------------------------------------------------ |
 | legacy (`16k`, `32k`) | `User: <question>\nAssistant:`                     |
-| v2 (`digit32k`)       | `System: <system>\nUser: <question>\nAssistant:`   |
+| 1.1 (`digit32k`)       | `System: <system>\nUser: <question>\nAssistant:`   |
 
-- v2 models always train with a system prompt: ~85 % of examples carry the short
+- 1.1 models always train with a system prompt: ~85 % of examples carry the short
   default persona (`DEFAULT_SYSTEM_PROMPT`), a small share carries written variations
-  ("Answer in one sentence.", "Answer with a numbered list.", ...) with answers that
+  ("Answer in one sentence.", "Answer with a numbered list.",
+  "Use markdown: two headings and one bold conclusion.", ...) with answers that
   match the instruction, and word-problem examples (GSM8K) carry a math system prompt.
 - At inference, `chat` and the exported `chat_template.jinja` prepend the default
   system prompt plus today's date unless the caller supplies their own system message.
-- Mini-CLI v2 models get the same treatment in `python/mini_engine.py`; what you type
+- Mini-CLI 1.1 models get the same treatment in `python/mini_engine.py`; what you type
   in `mini chat` matches what the model saw in training.
-- Multi-turn: v2 SFT includes two-turn conversations (both assistant answers are
+- Multi-turn: 1.1 SFT includes two-turn conversations (both assistant answers are
   supervised), `chat` sends the last two answered turns, and the `digit32k` lineage
   has room for it at ctx 2048. Legacy lineages keep the single-turn behaviour.
 
