@@ -1,6 +1,6 @@
 # Architecture
 
-A Llama-style decoder: RMSNorm, RoPE (rotary position embeddings), causal attention,
+A decoder-only transformer: RMSNorm, RoPE (rotary position embeddings), causal attention,
 SwiGLU feed-forward, and an embedding matrix shared with the output head. Everything
 lives in `Cfg` (`PRESETS` in
 [`config.py`](https://github.com/Mini-llm-lab/Mini-LLM/blob/main/src/mini_llm/config.py)).
