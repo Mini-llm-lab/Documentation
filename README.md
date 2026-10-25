@@ -1,8 +1,10 @@
 # Mini documentation
 
 Documentation for the **Mini** project: small language models (~40M and ~150M on the
-32k tokenizer lineage, plus the earlier ~34M and ~70M) designed, trained and run from
-scratch, with the tools built around them.
+32k tokenizer lineage) designed, trained and run from
+scratch, with the tools built around them. The earlier 1.0 generation (34M/70M) is
+kept in an
+[archive section](Mini-LLM/architecture.md#generation-10) of the Mini-LLM pages.
 
 This repository is the central place for everything that spans several repositories or
 that does not belong in a README. Each code repository keeps a short README with a
