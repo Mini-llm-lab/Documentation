@@ -18,6 +18,17 @@ uv run chat
 | `uv run chat [checkpoint]`                               | Chat with the assistant (Ctrl+C to quit)                                      |                                         |
 | `uv run export [checkpoint] [--out dir]`                 | Exports a checkpoint to Hugging Face format                                   | [Export](export-hf.md)                  |
 
+Every training detail is given on the command line, never hidden in the code:
+
+- `pretrain` takes the architecture (`--dim`, `--layers`, `--heads`, `--ffn`,
+  `--vocab`, `--ctx` — the `--size` preset is only the fallback) and the schedule
+  (`--lr-max`, `--lr-cont` (peak lr of a continued run), `--lr-min`, `--warmup`); it
+  prints the full schedule (`lr: peak x | cont y | min z | warmup n`) before starting.
+- `sft` takes `--lr-max`, `--lr-min` and `--warmup`.
+- The per-size values in `pretrain.py` (`HPARAMS` and the `PRESETS`) are only
+  fallbacks; `cloud/run.sh` spells every value out explicitly in the commands it
+  launches.
+
 `prep` also accepts `--lineage digit32k` (or `--size 150M`, which implies it since 1.1):
 that trains the digit-split tokenizer into `models/digit32k/tok.json` and marks
 `data/meta.json` with the lineage. `pretrain` refuses data whose stored lineage differs.
@@ -40,8 +51,9 @@ The number of steps (or epochs) must match the original run, since the learning-
 schedule depends on it. Starting a `pretrain` run whose output already exists is
 refused, so a finished model is never overwritten by accident.
 
-`--resume` from an old 34M `.state.pt` file is no longer compatible: the optimizer now
-uses two parameter groups with different weight decay.
+`--resume` from state files saved by older versions of the code (the 1.0-era runs) is
+no longer compatible: the optimizer now uses two parameter groups with different
+weight decay.
 
 ## Training on more data
 
@@ -52,42 +64,44 @@ on it:
 
 ```
 uv run prep 250
-uv run pretrain 12000 --init mini-llm-base-34M-6000steps.pt
-uv run sft 3
+uv run pretrain 12000 --init mini-llm-base-40M-30000steps.pt --lr-max 5e-4 --lr-cont 3e-4 --lr-min 5e-5 --warmup 1000
+uv run sft 2
 ```
 
 `12000` is the final step count, so this adds 6000 steps. The continued phase uses its
-own short warmup and a lower peak learning rate (3e-4), and the optimizer starts
-fresh. The result is saved as `mini-llm-base-34M-12000steps.pt`, which `sft` and
-`chat` then prefer over the 6000-step model.
+own short warmup and a lower peak learning rate (`--lr-cont 3e-4`, passed explicitly),
+and the optimizer starts fresh. The result is saved as
+`mini-llm-base-40M-12000steps.pt`, which `sft` and `chat` then prefer over the
+30000-step model.
 
 Constraints:
 
 - `--init` and `--resume` cannot be combined, and `--resume` works on a continued run
   like on any other.
 - Because the data mix changes, `val.bin` changes too: validation losses from before
-  and after are not directly comparable. This is why the 34M-12000steps val loss
-  (3.618) is in its own lineage in the [checkpoints table](architecture.md#trained-checkpoints).
-  Compare such runs with bits per byte instead — see
-  [Mini-Eval](../Mini-Eval/protocol.md#suite-smalllm).
+  and after are not directly comparable. Change `prep` first, then `--init` from the
+  checkpoint of the finished run.
 
 ## Training a 40M or 150M model
 
 The 32k lineage has two presets (see the [sizes table](architecture.md#sizes)):
 
-- **40M** — the 34M architecture (`dim=512, layers=8, heads=8, ffn=1408`) with a
-  32,768-token vocabulary: 42,476,032 parameters, 25,698,816 non-embedding. New
-  embedding parameters (32,768 × 512) are the only difference from 34M.
+- **40M** — the 1.0-generation architecture (`dim=512, layers=8, heads=8, ffn=1408`,
+  preserved from the 34M era, kept in the
+  [archive section](architecture.md#generation-10)) with a 32,768-token vocabulary:
+  42,476,032 parameters, 25,698,816 non-embedding. The 40M base is the direct
+  successor of the 1.0 runs; new embedding parameters (32,768 × 512) are the only
+  difference from the old 34M shape.
 - **150M** — `dim=768, layers=18, heads=12, ffn=2048`: 152,596,224 parameters,
   embeddings shared.
 
-The 34M/70M presets are unchanged and their checkpoints still load with the 16k
-tokenizer.
+The 1.0 presets (`34M`, `70M`) are unchanged and their checkpoints still load with the
+16k tokenizer, but no new run should target them — new runs are 40M or 150M.
 
 - **Tokenizer (32k).** `models/32k/tok.json` is the 32k BPE, trained by `prep`
   (`--vocab 32768`, 300k documents, same normalizer/pre-tokenizer/`<eos>` as 16k).
-  Each lineage keeps a single `tok.json` (`models/16k/` for 34M/70M, `models/32k/` for
-  40M/150M) and each size stores its checkpoints in its own subfolder
+  Each lineage keeps a single `tok.json` (`models/16k/` for the 1.0 checkpoints,
+  `models/32k/` for 40M/150M) and each size stores its checkpoints in its own subfolder
   (`models/32k/40M/`, `models/32k/150M/`), so old models keep working.
 - **Data budget.** Cloud runs use 131,072 tokens/step (`64x4x512`): 40M for 35,096
   steps ≈ 4.6B tokens (~108 tokens/param), 150M for 34,332 steps ≈ 4.5B tokens
