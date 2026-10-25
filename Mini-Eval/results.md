@@ -11,8 +11,12 @@ Runs are never overwritten. `report` uses the latest run of each model and suite
 
 The generated report lives in `reports/<suite>.md`, next to two plots:
 `<suite>_vs_tokens.png` (score against tokens seen) and `<suite>_vs_params.png`
-(score against non-embedding parameters). See [Workflow](workflow.md) for when they
-are rebuilt.
+(score against non-embedding parameters). Each rebuilt report is archived first:
+`reports/history/<suite>/<generation date>/` keeps the previous markdown and its
+plots, sorted by date, so past evaluations always stay readable. The same charts
+also live in a self-contained interactive version, `reports/<suite>.html` (hover a
+point to see the model, its score and the run date). See [Workflow](workflow.md)
+for when they are rebuilt.
 
 ## Tests
 

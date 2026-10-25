@@ -26,7 +26,7 @@ path to results, and `uv run pytest` also runs on the server.
 On the server, requires [uv](https://docs.astral.sh/uv/).
 
 ```
-uv sync
+uv sync --extra native   # reference-only installs can use plain `uv sync`
 cp local.example.yaml local.yaml
 ```
 
@@ -34,7 +34,8 @@ Edit `local.yaml` so that `models_dir` points to the `models/` folder of the tra
 repository (or set `MINI_EVAL_MODELS_DIR`). This file stays on your machine and is
 ignored by Git.
 
-The training repository is a dependency, declared in `pyproject.toml`:
+The native backend is an **optional** dependency (`[project.optional-dependencies]
+native` in `pyproject.toml`) pointed at a checkout of the training repository:
 
 ```
 [tool.uv.sources]
@@ -60,5 +61,7 @@ uv run pytest
 See [Workflow](workflow.md) for what each command does, including the regular
 workflow rule: `run` always rebuilds `reports/<suite>.md` plus the two plots
 (`<suite>_vs_tokens.png`, `<suite>_vs_params.png`) from the latest runs, so a
-benchmark never ends without images. Use `--no-report` to skip it, and `report` alone
+benchmark never ends without images — previous reports go to
+`reports/history/<suite>/<date>/` and an interactive `reports/<suite>.html` is
+written alongside. Use `--no-report` to skip it, and `report` alone
 to rebuild from existing results.

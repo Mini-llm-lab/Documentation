@@ -12,12 +12,15 @@ macOS, so every command below — `pytest` included — runs on the server, with
 | `fingerprint MODEL`            | Prints the SHA-256 values to copy into `models.yaml`           |
 | `check MODEL [--device cuda]`  | Batch invariance, device agreement with cpu, untrained control |
 | `run SUITE MODEL... [--all]`   | Evaluates models, saves each run in `results/`, rebuilds report + PNGs |
-| `report SUITE`                 | Rebuilds `reports/<suite>.md` and the two plots from existing results |
+| `report SUITE`                 | Rebuilds `reports/<suite>.md` (+ plots, HTML) from existing results |
 
 Regular workflow: `run` always rebuilds `reports/<suite>.md` plus the two plots
 (`<suite>_vs_tokens.png`, `<suite>_vs_params.png`) from the latest runs, so a
-benchmark never ends without images. Use `--no-report` to skip it, and `report` alone
-to rebuild from existing results.
+benchmark never ends without images. The previous report and its plots are moved to
+`reports/history/<suite>/<generation date>/` — no evaluation replaces an older one —
+and a self-contained HTML version (`reports/<suite>.html`) is written with the same
+charts plus tooltips (hover a point to see model, score and run date). Use
+`--no-report` to skip it, and `report` alone to rebuild from existing results.
 
 Useful options for `run`:
 
