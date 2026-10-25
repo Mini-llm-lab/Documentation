@@ -19,9 +19,10 @@ weights blindly. The interface it relies on is the one described in
 [Mini-LLM architecture](../Mini-LLM/architecture.md#sizes). HF directories are the
 ones produced by [Mini-LLM export](../Mini-LLM/export-hf.md).
 
-The conversation format is the training format, handled on the Python side; each
-question is sent as a single turn and truncated to the last 511 tokens of the
-512-token context. See
+The conversation format is the training format, handled on the Python side; what is
+sent follows the lineage: 1.0 lineages are single-turn (current question only), 1.1
+(`digit32k`) gets the system line plus the last two answered exchanges. Long turns
+are truncated to fit the context window. See
 [Mini-LLM architecture](../Mini-LLM/architecture.md#conversation-format).
 
 ## Offline

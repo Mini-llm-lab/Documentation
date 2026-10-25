@@ -18,14 +18,19 @@
 ```
 
 Chat keys: `Enter` send, `/reset` clear the transcript, `/quit` or `Ctrl+C` exit. The
-transcript is in-memory only, never written to disk, and is never sent back to the
-model: each question is answered on its own.
+transcript is in-memory only, never written to disk. What reaches the model is
+decided by the engine from the model's lineage (single-turn for 1.0, a two-turn
+window for 1.1) — see below; the CLI itself always sends the transcript.
 
-The format is exactly the training format (`User: ...\nAssistant:`, see
-`../Mini-LLM/src/mini_llm/prompt.py` and
-[Mini-LLM architecture](../Mini-LLM/architecture.md#conversation-format)). Each message
-is sent as a single turn; long questions are truncated to the last 511 tokens of the
-512-token context.
+The format is exactly the training format (see `../Mini-LLM/src/mini_llm/prompt.py` and
+[Mini-LLM architecture](../Mini-LLM/architecture.md#conversation-format)):
+
+- **1.0 lineages** (`16k`, legacy `32k`, no system prompt): trained single-turn — only
+  the current question is sent. History is kept for display and `/reset` clears it,
+  but it is never fed back to the model.
+- **1.1** (`digit32k`, `System: ...` format): the system line, the last two answered
+  exchanges and the current question. Long conversations are truncated from the
+  front to fit the context window.
 
 ## Configuration file
 
