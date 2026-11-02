@@ -48,7 +48,11 @@ uv run pytest
 1. A **reference model**: add an entry with `kind: hf`, the Hub id and a `revision`,
    plus its parameter counts and the tokens it saw. Models run at their native
    context; a `max_length: N` cap is still supported (it is passed to lm-eval and
-   recorded in the run metadata) but protocol v2 does not use one.
+   recorded in the run metadata) and is only used to keep a model whose native context
+   is wider than 8192, the ceiling the suite batch size of 4 is memory-safe at, inside
+   that envelope. A gated repository
+   (`google/gemma-3-270m`, for example) also needs its license accepted by the account
+   that runs the eval.
 2. One of **your models**: copy the checkpoint into the training repository's
    `models/` folder (the `tok.json` next to it is used), add an entry with
    `kind: native` and `checkpoint: <file name>`, run

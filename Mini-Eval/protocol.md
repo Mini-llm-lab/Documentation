@@ -9,7 +9,7 @@ included, is then evaluated again.
 model runs at its native context length (the v1 cap that held SmolLM2-135M at 2048
 tokens is removed, so it runs at 8192), and the suite batch size is 4. The lineup
 replaces `mini-llm-34M-12000steps` with `mini-llm-40M-35096steps` and adds
-`pythia-160m-step143000` beside the 70M reference.
+`pythia-160m-step143000` beside the 70M reference and `gemma-3-270m`.
 
 ## Fixed settings
 
@@ -52,10 +52,16 @@ lineage warning in [Mini-LLM training](../Mini-LLM/training.md#training-a-40m-or
   intermediate checkpoints (`step64`, `step128`, ...) at 2,097,152 tokens per step,
   which allows comparisons at an equal number of training tokens; v2 uses `step143000`
   for both Pythia-70M and Pythia-160M.
+- `google/gemma-3-270m` is the **base** checkpoint, not the instruction-tuned `-it`
+  variant that Ollama ships as `gemma3:270m`: this suite scores base models, so an IT
+  model would be measured on a chat behaviour it was never given here. It is gated, so
+  the Hugging Face account running the eval must have accepted the Gemma license. Its
+  native context is 32K; `models.yaml` caps it at 8192, the ceiling the suite batch
+  size of 4 is memory-safe at.
 - **Native models** are identified by the SHA-256 of the checkpoint and of `tok.json`,
   stored in `models.yaml`. A run is refused if the files on disk do not match.
-- Every model runs at its **native context length**; the value is recorded in the run
-  metadata.
+- Every model runs at its **native context length**, or at 8192 tokens when its native
+  context is wider (`gemma-3-270m`); the value is recorded in the run metadata.
 - Size is described by **non-embedding parameters** as well as total parameters,
   because embeddings are a very different share of the total from one model to
   another (about 73% for Pythia-70M).
