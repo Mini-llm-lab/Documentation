@@ -29,8 +29,10 @@ The format is exactly the training format (see `../Mini-LLM/src/mini_llm/prompt.
   the current question is sent. History is kept for display and `/reset` clears it,
   but it is never fed back to the model.
 - **1.1** (`digit32k`, `System: ...` format): the system line, the last two answered
-  exchanges and the current question. Long conversations are truncated from the
-  front to fit the context window.
+  exchanges and the current question. The system line is the default persona prefixed
+  with `Today is YYYY-MM-DD.`, recomputed on every request, so a session left open
+  overnight picks up the new date instead of serving the one from startup. Long
+  conversations are truncated from the front to fit the context window.
 
 ## Configuration file
 
