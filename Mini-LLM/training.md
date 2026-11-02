@@ -16,7 +16,14 @@ uv run chat
 | `uv run pretrain [steps] [--resume] [--init checkpoint] [--teacher checkpoint]` | Pretraining: learn to predict the next token | Full run via `cloud/run.sh train` |
 | `uv run sft [epochs] [base] [--resume]`                  | Supervised fine-tuning on question/answer pairs                               | Full run via `cloud/run.sh sft`         |
 | `uv run chat [checkpoint]`                               | Chat with the assistant (Ctrl+C to quit)                                      |                                         |
+| `uv run heldout [checkpoint] [--math N] [--dates N]`     | Greedy generation on held-out arithmetic problems and dated system prompts     | Needs an assistant checkpoint           |
 | `uv run export [checkpoint] [--out dir]`                 | Exports a checkpoint to Hugging Face format                                   | [Export](export-hf.md)                  |
+
+`heldout` is the check that says whether arithmetic actually improved: it generates
+greedy answers on problems drawn with a different seed than the SFT mix, and on dated
+system prompts, then prints accuracy per operation (`add`, `sub`, `mul`, `div`) and the
+exact-match rate of the date. It builds its prompts the same way `chat` does, so it also
+verifies that the injected date is read correctly.
 
 Every training detail is given on the command line, never hidden in the code:
 

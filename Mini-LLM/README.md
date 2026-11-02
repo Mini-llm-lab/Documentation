@@ -64,13 +64,15 @@ Mini-LLM/
         ├── model.py       architecture and text generation
         ├── prompt.py      conversation format shared by sft and chat
         ├── identity.py    identity, small-talk and arithmetic examples for sft
-        ├── system_prompts.py  default system prompt, obedience variations, uncertainty
+        ├── system_prompts.py  default system prompt, dated prompts, obedience
+        │                  variations, uncertainty
         ├── math_data.py   synthetic arithmetic and mini-skills for the 1.1 SFT
         ├── prep.py        tokenizer and data preparation
         ├── pretrain.py    pretraining and distillation
         ├── teacher.py     download and convert the legacy 150M base for distillation
         ├── sft.py         fine-tuning into an assistant
         ├── chat.py        chat interface
+        ├── heldout.py     held-out arithmetic and date checks on an assistant
         ├── checkpoints.py saving, loading and selecting checkpoints
         ├── configuration_mini_llm.py  HF config (deploys as config.json)
         ├── modeling_mini_llm.py       HF model, same math as model.py

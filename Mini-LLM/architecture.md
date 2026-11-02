@@ -73,8 +73,12 @@ and shared by `sft` and `chat`. The format is **versioned per tokenizer lineage*
 | legacy (`16k`, `32k`) | `User: <question>\nAssistant:`                     |
 | 1.1 (`digit32k`)       | `System: <system>\nUser: <question>\nAssistant:`   |
 
-- 1.1 models always train with a system prompt: ~85 % of examples carry the short
-  default persona (`DEFAULT_SYSTEM_PROMPT`), a small share carries written variations
+- 1.1 models always train with a system prompt: ~90 % of examples carry the short
+  default persona (`DEFAULT_SYSTEM_PROMPT`) prefixed with `Today is <date>.`, and on
+  ~15 % of them one of three paraphrases of that persona (`SYSTEM_PARAPHRASES`)
+  replaces the canonical text — same role, different wording, so the model follows
+  the system line instead of memorising one string. The canonical wording stays
+  dominant because it is what inference sends. A small share carries written variations
   ("Answer in one sentence.", "Answer with a numbered list.",
   "Answer with a markdown list of four items.", ...) with answers that
   match the instruction, and word-problem examples (GSM8K) carry a math system prompt.
@@ -82,6 +86,10 @@ and shared by `sft` and `chat`. The format is **versioned per tokenizer lineage*
   worth more than several learned halfway — no spontaneous headings or bold.
 - At inference, `chat` and the exported `chat_template.jinja` prepend the default
   system prompt plus today's date unless the caller supplies their own system message.
+  The date is `YYYY-MM-DD` and is computed on **every call** (`current_date()` in
+  `prompt.py`, `strftime_now('%Y-%m-%d')` in the template), so a long-running process
+  never serves yesterday's date. Training shows the same line with dates spread over
+  2024–2027: the model learns to copy the date it is given, not to remember one.
 - Mini-CLI 1.1 models get the same treatment in `python/mini_engine.py`; what you type
   in `mini chat` matches what the model saw in training.
 - Multi-turn: 1.1 SFT includes two-turn conversations (both assistant answers are

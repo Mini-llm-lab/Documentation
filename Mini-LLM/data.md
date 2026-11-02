@@ -41,14 +41,30 @@ Sources (all English):
   the instruction — this is what teaches system-prompt obedience and markdown output
   (lists only, on purpose — no headings or bold) —
   and "I don't know" calibration examples (uncertainty, never refusals).
+  The default persona is also written three ways in `SYSTEM_PARAPHRASES`, and one of
+  them replaces the canonical text on ~15 % of examples: the model learns what the
+  system line *does* instead of memorising one exact string. The canonical wording
+  still dominates, because it is the one `chat`, the export template and Mini-CLI send
+  at inference.
 - [`math_data.py`](https://github.com/Mini-llm-lab/Mini-LLM/blob/main/src/mini_llm/math_data.py)
   (1.1 only): synthetic arithmetic and token-level skills, deterministic by seed:
-  - multiplication tables 1–12 and their inverse divisions, covered exhaustively;
-  - additions/subtractions 1–5 digits (30% of the 4–5-digit ones echo one rounding
-    step: `3472 + 512 = 3472 + 500 = 3972, then 3972 + 12 = 3984.`);
-  - products: 2×2 digits, plus exhaustive 3-digit × 1-digit and sampled larger ones;
+  - multiplication tables 1–12 and their inverse divisions, covered exhaustively but
+    held to ~10 % of the math mix (`table_share`), so they stay a base and not a crutch;
+  - additions/subtractions 1–6 digits, with ~10 % of subtractions landing on a
+    negative result; 30 % of the 4–6-digit ones echo one rounding step:
+    `3472 + 512 = 3472 + 500 = 3972, then 3972 + 12 = 3984.`;
+  - products from 2×1 to 5×1 and 2×2 / 3×2 / 4×2 digits; half of the multi-digit ones
+    split the second factor: `47 x 38 = 47 x 30 + 47 x 8 = 1410 + 376 = 1786.`;
+  - divisions are always exact: divisor 2–99, quotient 2–4 digits;
+  - answers are plain text, never LaTeX — one notation to learn, not two;
   - mini-skills: word counting, sorting small lists, reversing words/digit strings.
-  ~50k examples per epoch next to the ~45k source pairs — roughly a third of SFT tokens.
+  75k math examples and 10k skills per epoch next to the ~45k source pairs: about
+  45 % of SFT tokens, which buys arithmetic without drowning the chat data.
+- Date examples (1.1 only): ~400 `What is today's date?` pairs whose answer is copied
+  from the `Today is YYYY-MM-DD.` line of the system prompt, with dates spread over
+  2024–2027, and ~90 % of the other system prompts carry such a line (`DATE_SHARE` in
+  `sft.py`). The point is to read the date, not to memorise one — see
+  [Architecture](architecture.md#conversation-format).
 - `chat.py` and prompts never format numbers with separators (3,472 is off-format for
   the digit-split lineage): every example inside numbers is a plain digit run.
 
