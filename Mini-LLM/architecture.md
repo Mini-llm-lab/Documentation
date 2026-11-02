@@ -92,9 +92,10 @@ and shared by `sft` and `chat`. The format is **versioned per tokenizer lineage*
   2024–2027: the model learns to copy the date it is given, not to remember one.
 - Mini-CLI 1.1 models get the same treatment in `python/mini_engine.py`; what you type
   in `mini chat` matches what the model saw in training.
-- Multi-turn: 1.1 SFT includes two-turn conversations (both assistant answers are
-  supervised), `chat` sends the last two answered turns, and the `digit32k` lineage
-  has room for it at ctx 2048. Legacy lineages keep the single-turn behaviour.
+- Multi-turn: 1.1 SFT includes conversations of up to four turns (every assistant
+  answer is supervised), `chat` and Mini-CLI send the last four answered exchanges,
+  and the `digit32k` lineage has room for it at ctx 2048. Legacy lineages keep the
+  single-turn behaviour.
 
 ## Generation 1.0 (archive)
 

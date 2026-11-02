@@ -21,10 +21,10 @@ Sources (all English):
     legacy recipe drops these; 1.1 keeps them.
 - [No Robots](https://huggingface.co/datasets/HuggingFaceH4/no_robots): 10,000
   instructions written by professional annotators, including chat-style prompts.
-  1.1 also keeps two-turn exchanges as full conversations.
+  1.1 also keeps multi-turn exchanges (up to four turns) as full conversations.
 - [OpenAssistant oasst2](https://huggingface.co/datasets/OpenAssistant/oasst2):
-  volunteer-written conversations. Only English, top-ranked answers. 1.1 keeps
-  two-turn threads (question → top answer → follow-up → top answer).
+  volunteer-written conversations. Only English, top-ranked answers. 1.1 follows
+  whole threads (up to four turns: question → top answer → follow-up → top answer).
 - [alpaca-cleaned](https://huggingface.co/datasets/yahma/alpaca-cleaned): **AI-written**
   (generated with an OpenAI model). It adds short, simple answers, but it is capped so
   that it never exceeds 25% of the mix (`AI_MAX_SHARE` in `sft.py`); human data always
