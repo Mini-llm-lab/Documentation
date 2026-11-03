@@ -32,6 +32,17 @@ Things to keep in mind when changing the code:
 - `prep.py` ends with `os._exit(0)` on purpose: the Hugging Face streaming workers can
   keep the interpreter from exiting after the data is written. The files are already
   closed at that point.
+- The format stage (`midtrain.py`) is intentionally separate from both pretraining and
+  SFT. It reads `data/train.bin` only for replay batches, never rewrites `train.bin` or
+  `val.bin`, and saves a new base checkpoint whose step count is the pretrained count
+  plus the stage length — so checkpoint selection needs no special case and the
+  pretrained file stays on disk. Folding the markup into pretraining would make the base
+  checkpoint chat-shaped and unrecoverable; leaving it to SFT spends supervised budget on
+  `System:`/`User:`/`Assistant:` instead of on answers.
+- SFT mix limits are shares of **supervised tokens**, not example counts: `AI_MAX_SHARE`
+  (0.25) caps alpaca, `MATH_MAX_SHARE` (0.3) caps synthetic maths and word problems on
+  top of the chat data. `cap_share` shuffles with a fixed seed before trimming, so the
+  same sources always produce the same mix. See [Data](data.md#sft).
 - SFT masks everything that is not an answer (system header, questions) with labels
   `-100` and pads with the `<eos>` id, because the tokenizer only defines `<eos>` as a
   special token. Multi-turn conversations supervise every assistant turn and close
