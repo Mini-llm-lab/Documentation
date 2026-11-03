@@ -98,8 +98,10 @@ Constraints:
 
 - `--init` and `--resume` cannot be combined, and `--resume` works on a continued run
   like on any other.
-- Because the data mix changes, `val.bin` changes too: validation losses from before
-  and after are not directly comparable. Change `prep` first, then `--init` from the
+- `--init` continues from a checkpoint while `prep` builds the next mix: the training
+  mix changes, the validation set does not. `prep` reuses `val.bin` as long as the
+  vocabulary, the tokenizer and the lineage are unchanged, so validation losses from
+  before and after stay directly comparable. Change `prep` first, then `--init` from the
   checkpoint of the finished run.
 
 ## Training a 40M or 150M model

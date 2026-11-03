@@ -30,10 +30,14 @@ SFT mix below.
 source, `bytes/token`, and `bits/byte` next to every validation loss.
 
 `val.bin` is written **once**. `prep` records the hash of every validation document in
-`data/val_docs.json`; later runs reuse `val.bin` untouched and keep those documents out
-of `train.bin`. Validation losses therefore stay comparable across `prep` runs,
-including the `--init` continuation below, as long as the vocabulary and the lineage do
-not change. Moving `data/` aside or switching lineage starts a new validation set.
+`data/val_docs.json`, together with the vocabulary, the lineage and the tokenizer
+`sha256`; later runs reuse `val.bin` untouched and keep those documents out of
+`train.bin`. A later `prep` changes the training mix but never the validation set, so
+validation losses stay comparable across `prep` runs — including the `--init`
+continuation below — as long as the vocabulary, the tokenizer and the lineage do not
+change. When any of the three differs, `prep` says so and rebuilds `val.bin`; a
+`val_docs.json` written before the tokenizer hash was recorded keeps its `val.bin` and
+gets the current hash. Moving `data/` aside starts a new validation set too.
 
 ## SFT
 
@@ -105,10 +109,10 @@ out for validation. SFT runs 2 epochs over this mix (the 70M run overfit at epoc
 
 The format stage (`midtrain`, before SFT) uses a chat-only slice of the same recipe:
 dolly, No Robots, oasst2, alpaca (same 25 % cap), identity and small-talk, arithmetic,
-system-prompt variations and dates — no gsm8k, no synthetic maths, no word problems. It
-is not a second SFT: 600 steps where the prompt tokens are masked and 30 % of the
-batches replay raw text from `data/train.bin`, so the markup lands without forgetting
-how to write English. See [Training](training.md#format-stage).
+system-prompt variations and dates — no gsm8k, no `math_data` synthetic arithmetic, no
+word problems. It is not a second SFT: 600 steps where the prompt tokens are masked and
+30 % of the batches replay raw text from `data/train.bin`, so the markup lands without
+forgetting how to write English. See [Training](training.md#format-stage).
 
 ## Conversation format
 
@@ -125,13 +129,13 @@ versioned per tokenizer lineage (see
 ## Tokenized files
 
 `prep` writes `data/train.bin`, `data/val.bin`, `data/val_docs.json` (hashes of the
-validation documents, read back on later runs) and `data/meta.json` (`vocab`, lineage,
-tokenizer hash, `train_tokens`, `val_tokens`, `train_bytes`, the per-source counts
-above, `seed`, `min_doc_tokens`, `complete`). Token ids are stored as `uint16`, so
-`Cfg.vocab` must stay at or below 65,536. Changing `vocab` invalidates `tok.json` and
-the data: delete them and run `prep` again. `pretrain` aborts if the vocab, the
-tokenizer hash or the `.bin` token counts in `meta.json` do not match (a
-16k-tokenized file next to a 32k `meta.json` passes the first two checks, so the
+validation documents plus the tokenizer `sha256`, read back on later runs) and
+`data/meta.json` (`vocab`, lineage, tokenizer hash, `train_tokens`, `val_tokens`,
+`train_bytes`, the per-source counts above, `seed`, `min_doc_tokens`, `complete`). Token
+ids are stored as `uint16`, so `Cfg.vocab` must stay at or below 65,536. Changing `vocab`
+invalidates `tok.json` and the data: delete them and run `prep` again. `pretrain` aborts
+if the vocab, the tokenizer hash or the `.bin` token counts in `meta.json` do not match
+(a 16k-tokenized file next to a 32k `meta.json` passes the first two checks, so the
 lengths are compared as well). A `meta.json` with `complete: false` means the run
 stopped short and a source ran dry: the files are not the size the recipe expects.
 

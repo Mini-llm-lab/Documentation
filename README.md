@@ -16,8 +16,8 @@ quickstart and points here for the details.
                        ┌────────────────────────────────────────────┐
                        │                 Mini-LLM                   │
                        │  training from scratch (PyTorch, CUDA)     │
-                       │  tokenizer → data → pretrain → format →     │
-                       │  sft → checkpoints (.pt) → HF export        │
+                       │  tokenizer → data → pretrain → format →    │
+                       │  sft → checkpoints (.pt) → HF export       │
                        └───────────────┬──────────────┬─────────────┘
                                        │              │
                     models (.pt, tok.json)      models + suite
