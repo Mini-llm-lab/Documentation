@@ -84,6 +84,10 @@ and shared by `sft` and `chat`. The format is **versioned per tokenizer lineage*
   match the instruction, and word-problem examples (GSM8K) carry a math system prompt.
   The default persona limits markdown to lists on purpose: one element trained hard is
   worth more than several learned halfway — no spontaneous headings or bold.
+- Before SFT, a short **format stage** (`uv run midtrain`: 600 steps, 30 % replay of the
+  pretraining text, prompt tokens masked) rehearses this markup on the base model, so
+  SFT spends its budget on answers instead of on learning `System:`/`User:`/
+  `Assistant:`. See [Training](training.md#format-stage).
 - At inference, `chat` and the exported `chat_template.jinja` prepend the default
   system prompt plus today's date unless the caller supplies their own system message.
   The date is `YYYY-MM-DD` and is computed on **every call** (`current_date()` in

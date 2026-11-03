@@ -19,7 +19,8 @@ cloud/run.sh prep    # 7300M tokens, digit32k tokenizer, background
 cloud/run.sh teacher # download + convert the legacy 150M base teacher (legacy runs only, see note)
 cloud/run.sh smoke   # 100-step check, note the tok/s
 cloud/run.sh train   # 53,375 steps, background, adds --resume automatically
-cloud/run.sh sft     # 2 epochs on the base run above
+cloud/run.sh midtrain # 600-step format stage on that base, background
+cloud/run.sh sft     # 2 epochs on the format-stage base when it exists
 cloud/run.sh eval    # protocol v2 suite, on the pod GPU
 cloud/run.sh test    # pytest, training repo + sibling Mini-Eval
 cloud/run.sh export-hf # tests, then export base + assistant
@@ -49,8 +50,14 @@ and data guards are in place before `prep` is started.
 
   The 150M 1.1 preset relies on `pretrain`'s ctx-aware batch
   defaults (micro-batches stay ≤ 65,536 tokens: 32×2×2048 = 131,072 tokens/step).
+- `midtrain` runs the format stage between `train` and `sft`: `MID_STEPS` (600),
+  `MID_REPLAY` (0.3, share of raw-text batches from `data/train.bin`), `MID_LR_MAX`
+  (1e-4), `MID_LR_MIN` (1e-5) and `MID_WARMUP` (50). It writes
+  `models/<lineage>/<size>/mini-llm-base-<size>-<steps+MID_STEPS>steps.pt`; `sft` uses
+  that file when it exists, and the pretrained checkpoint when it does not.
 - The learning-rate schedule is passed explicitly in the command, not hidden in the
-  code: `train`/`smoke` run `pretrain` with `--lr-max --lr-cont --lr-min --warmup` and
+  code: `train`/`smoke` run `pretrain` with `--lr-max --lr-cont --lr-min --warmup`,
+  `midtrain` with `--lr-max --lr-min --warmup`, and
   `sft` with `--lr-max --lr-min --warmup`. Defaults per `SIZE` (40M/150M:
   5e-4 / 3e-4 / 5e-5 / 1000; 70M: 6e-4 / 3e-4 / 6e-5 / 500; SFT: 2e-4 / 2e-5 / 50) can
   be overridden from the environment with `LR_MAX`, `LR_CONT`, `LR_MIN`, `LR_WARMUP`,

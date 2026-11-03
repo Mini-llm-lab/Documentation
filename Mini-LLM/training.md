@@ -1,7 +1,9 @@
 # Training
 
-The pipeline has four steps, run in this order. Long runs belong on a cloud GPU; see
-[Cloud GPU](cloud-gpu.md). For a first local check:
+The pipeline has five stages, run in this order: prepare the data, pretrain, run the
+format stage, SFT, chat. Long runs belong on a cloud GPU; see
+[Cloud GPU](cloud-gpu.md). For a first local check (the classic lineage, no format
+stage):
 
 ```
 uv run prep
@@ -14,16 +16,23 @@ uv run chat
 | -------------------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------- |
 | `uv run prep [millions]`                                 | Trains the tokenizer (if missing) and tokenizes a FineWeb-Edu + Wikipedia mix | Full data via `cloud/run.sh prep`       |
 | `uv run pretrain [steps] [--resume] [--init checkpoint] [--teacher checkpoint]` | Pretraining: learn to predict the next token | Full run via `cloud/run.sh train` |
+| `uv run midtrain [steps] --init checkpoint`              | Format stage: learn the `System:/User:/Assistant:` markup before SFT          | ~600 steps, `cloud/run.sh midtrain`     |
 | `uv run sft [epochs] [base] [--resume]`                  | Supervised fine-tuning on question/answer pairs                               | Full run via `cloud/run.sh sft`         |
 | `uv run chat [checkpoint]`                               | Chat with the assistant (Ctrl+C to quit)                                      |                                         |
-| `uv run heldout [checkpoint] [--math N] [--dates N]`     | Greedy generation on held-out arithmetic problems and dated system prompts     | Needs an assistant checkpoint           |
+| `uv run heldout [checkpoint] [--math N] [--stories N] [--dates N] [--format N] [--base]` | Greedy generation on held-out arithmetic, word problems, dated prompts and system-prompt obedience | Assistant by default, `--base` for a base or format-stage checkpoint |
 | `uv run export [checkpoint] [--out dir]`                 | Exports a checkpoint to Hugging Face format                                   | [Export](export-hf.md)                  |
 
-`heldout` is the check that says whether arithmetic actually improved: it generates
-greedy answers on problems drawn with a different seed than the SFT mix, and on dated
-system prompts, then prints accuracy per operation (`add`, `sub`, `mul`, `div`) and the
-exact-match rate of the date. It builds its prompts the same way `chat` does, so it also
-verifies that the injected date is read correctly.
+`heldout` is the check that says whether a recipe actually improved: it generates
+greedy answers on problems drawn with a different seed than the SFT mix (bare
+arithmetic and narrative word problems), on dated system prompts, and on the
+instruction-style prompts of `system_prompts.VARIATIONS` plus the uncertainty pairs.
+It prints accuracy per operation (`add`, `sub`, `mul`, `div`), the exact-match rate of
+word problems and dates, and a style score that compares the shape of the answer
+(one sentence, three bullets, five numbered items) with the shape of the reference.
+Bullet and numbered answers must match the reference count exactly; a prose answer
+passes when it really is prose and is not longer than the reference. It
+builds its prompts the same way `chat` does, so it also verifies that the injected date
+is read correctly.
 
 Every training detail is given on the command line, never hidden in the code:
 
@@ -31,6 +40,10 @@ Every training detail is given on the command line, never hidden in the code:
   `--vocab`, `--ctx` — the `--size` preset is only the fallback) and the schedule
   (`--lr-max`, `--lr-cont` (peak lr of a continued run), `--lr-min`, `--warmup`); it
   prints the full schedule (`lr: peak x | cont y | min z | warmup n`) before starting.
+- Before the first step, `pretrain` prints the data accounting recorded by `prep`:
+  `bytes/token`, and for each source its share of the training tokens and the number of
+  passes the run makes over it. It also reports `bits/byte` next to every validation
+  loss (loss is in nats/token, so it cannot be compared across tokenizers).
 - `sft` takes `--lr-max`, `--lr-min` and `--warmup`.
 - The per-size values in `pretrain.py` (`HPARAMS` and the `PRESETS`) are only
   fallbacks; `cloud/run.sh` spells every value out explicitly in the commands it
@@ -110,20 +123,63 @@ The 1.0 presets (`34M`, `70M`) are unchanged and their checkpoints still load wi
   Each lineage keeps a single `tok.json` (`models/16k/` for the 1.0 checkpoints,
   `models/32k/` for 40M/150M) and each size stores its checkpoints in its own subfolder
   (`models/32k/40M/`, `models/32k/150M/`), so old models keep working.
-- **Data budget.** Cloud runs use 131,072 tokens/step (`64x4x512`): 40M for 35,096
-  steps ≈ 4.6B tokens (~108 tokens/param), 150M for 34,332 steps ≈ 4.5B tokens
-  (~29 tokens/param, ≤1 pass over `train.bin`). `prep` writes `data/meta.json`
+- **Data budget.** Cloud runs use 131,072 tokens/step (`64x2x1024` for 40M,
+  `32x2x2048` for 150M): the 40M recipe runs 35,096 steps ≈ 4.6B tokens (~108
+  tokens/param) over 4.6B prepared tokens (`PREP_MILLIONS=4600`), the 150M 1.1 recipe
+  53,375 steps ≈ 7.0B tokens (~46 tokens/param, about one pass over the 7.3B tokens of
+  `PREP_MILLIONS=7300`). The published 150M
+  (`mini-llm-base-150M-34332steps.pt`) is the older, shorter 1.0-era run: 34,332 steps
+  ≈ 4.5B tokens (~29 tokens/param), classic 32k tokenizer, ctx 512, no format stage.
+  `prep` writes `data/meta.json`
   (`vocab`, tokenizer hash, train/val token counts); keep it next to the `.bin`
   files. `pretrain` aborts if the vocab, the tokenizer hash or the `.bin` token
   counts do not match — a 16k-tokenized `train.bin` next to a 32k `meta.json` would
   pass the older checks, so the lengths are compared too.
 - **Run.** Everything goes through `cloud/run.sh` — see [Cloud GPU](cloud-gpu.md).
-  `sft` does 2 epochs (the 70M overfit at epoch 3). `pack` archives
-  `models/32k/tok.json`, the final base + assistant and `data/meta.json`
-  (milestones excluded, `.state.pt` excluded).
+  After `train`, `cloud/run.sh midtrain` runs the format stage (see below) and `sft`
+  picks its output automatically; `sft` does 2 epochs (the 70M overfit at epoch 3).
+  `pack` archives
+  `models/32k/tok.json`, every base checkpoint of that size (pretrained and format
+  stage), the assistant and `data/meta.json` (milestones excluded, `.state.pt`
+  excluded).
 - **Comparing across tokenizers.** Val losses of the 16k and 32k lineages are **not
   comparable** (predicting among 32k tokens is a different task). Compare with bits
   per byte instead — see the `wikitext` column in [Mini-Eval](../Mini-Eval/protocol.md).
+
+## Format stage
+
+Between pretraining and SFT, a short stage teaches the chat markup itself. A base
+trained on raw web text has seen `System:`, `User:` and `Assistant:` only as ordinary
+words, so SFT would have to teach the markup *and* the answers in the same gradients —
+and the assistant tends to keep copying the prompt. The base checkpoint answers
+`Explain what a linked list is used for.` with
+`Explain what a linked list is used for.\nAssistant: ...`; the format stage is what
+turns that into an actual answer.
+
+```
+uv run midtrain 600 --init models/32k/150M/mini-llm-base-150M-53375steps.pt --device cuda
+```
+
+- 600 steps (`MID_STEPS`), lr 1e-4 → 1e-5 cosine (`MID_LR_MAX`/`MID_LR_MIN`), `--warmup`
+  50 (capped at a twentieth of the run, so 30 here — the same rule as `pretrain`), the
+  same 131,072 tokens/step as pretraining.
+- Every step draws 70 % format batches, 30 % replay (`--replay`, `MID_REPLAY`). Format
+  batches use the SFT supervised shape (`sft.format_examples`, prompt tokens masked
+  with `-100`, only the answer is scored); replay batches are plain next-token windows
+  from `data/train.bin`, so the base distribution does not decay while the markup is
+  learnt. `train.bin` and `val.bin` are only read, never rewritten, and the run aborts
+  if `data/meta.json` does not describe them (same guard as `pretrain`).
+- The output is `mini-llm-base-<size>-<base_steps+600>steps.pt` — a base line with a
+  higher step count, so `sft` picks it over the pretrained checkpoint on its own and
+  the pretrained file stays untouched. `val.bin` loss and `bits/byte` are still printed,
+  but the stage changes the loss on format text, not on web text.
+- Go/no-go is the format bench on a base checkpoint:
+  `uv run heldout <base> --base --format 1 --math 0 --dates 0 --stories 0`. Before the
+  stage it scores ~0/17 on style and ~0/5 on uncertainty, because the model repeats the
+  prompt instead of answering; a working stage moves both up.
+- `midtrain` refuses an assistant checkpoint (the stage starts from a base) and a
+  classic-lineage base: the 1.0 model never saw a system turn, so there is nothing to
+  reinforce.
 
 ## Distillation from the 150M base
 

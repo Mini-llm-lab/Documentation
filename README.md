@@ -16,8 +16,8 @@ quickstart and points here for the details.
                        ┌────────────────────────────────────────────┐
                        │                 Mini-LLM                   │
                        │  training from scratch (PyTorch, CUDA)     │
-                       │  tokenizer → data → pretrain → sft →       │
-                       │  checkpoints (.pt) → HF export             │
+                       │  tokenizer → data → pretrain → format →     │
+                       │  sft → checkpoints (.pt) → HF export        │
                        └───────────────┬──────────────┬─────────────┘
                                        │              │
                     models (.pt, tok.json)      models + suite
@@ -31,7 +31,8 @@ quickstart and points here for the details.
 
 - **[Mini-LLM](Mini-LLM/README.md)** — the training repository. Everything is implemented
   from scratch: BPE tokenizer, data preparation, the transformer decoder architecture,
-  pretraining, supervised fine-tuning, chat, and export to Hugging Face format.
+  pretraining, the format stage, supervised fine-tuning, chat, and export to Hugging
+  Face format.
 - **[Mini-Eval](Mini-Eval/README.md)** — the evaluation repository. Runs the models
   against reference models (Pythia, ...) with `lm-evaluation-harness` and produces
   comparable scores, reports and plots.
